@@ -49,14 +49,11 @@
 
   /* ---------- topbar ---------- */
   .topbar{
-    display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
     flex-wrap:wrap;
-    padding-bottom:18px; margin-bottom:20px;
+    padding-bottom:14px; margin-bottom:14px;
     border-bottom:1px solid var(--line);
   }
-  .brand{display:flex; align-items:baseline; gap:14px;}
-  .brand h1{font-size:1.9rem; font-weight:700; letter-spacing:0.01em;}
-  .brand .tagline{font-size:0.82rem; color:var(--text-faint); font-style:italic;}
   .topbar-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
 
   button, select, input, textarea{font-family:inherit; color:inherit;}
@@ -89,23 +86,76 @@
   .summary-empty{padding:60px 20px; text-align:center; color:var(--text-faint); border:1px dashed var(--line); border-radius:12px;}
   .summary-empty h3{color:var(--text-dim); margin-bottom:8px; font-weight:600;}
 
+  /* ---------- scene tabs ---------- */
+  .scene-tabs{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .scene-tab{
+    appearance:none; border:1px solid var(--line); border-bottom:none; background:var(--panel);
+    color:var(--text-dim); padding:7px 12px 6px; border-radius:8px 8px 0 0; font-size:0.78rem;
+    font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+  }
+  .scene-tab:hover{color:var(--text); border-color:var(--gold);}
+  .scene-tab.active{background:var(--card-bg); color:var(--gold-bright); border-color:var(--gold); box-shadow:0 -2px 0 0 var(--gold) inset;}
+  .scene-tab-del{opacity:0.5; font-size:0.75rem; padding:1px 3px; border-radius:3px;}
+  .scene-tab-del:hover{opacity:1; color:var(--rust-bright); background:rgba(194,70,50,0.15);}
+  .scene-tab-add{
+    appearance:none; border:1px dashed var(--line); background:none; color:var(--text-faint);
+    padding:7px 12px; border-radius:8px; font-size:0.78rem; font-weight:600; cursor:pointer;
+  }
+  .scene-tab-add:hover{color:var(--gold-bright); border-color:var(--gold);}
+
+  /* ---------- category drawers ---------- */
+  .category-drawer{background:var(--panel); border:1px solid var(--line); border-radius:12px; margin-bottom:14px; overflow:hidden;}
+  .category-drawer-head{
+    display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; user-select:none;
+  }
+  .category-drawer-head h3{margin:0; font-family:'Fraunces',serif; font-size:1rem; font-weight:700; color:var(--text);}
+  .category-drawer-head .cd-count{
+    font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-faint);
+    background:var(--ink-2); border-radius:10px; padding:1px 8px;
+  }
+  .category-drawer-body{padding:0 16px 16px;}
+  .category-drawer.collapsed .drawer-chevron{transform:rotate(-90deg);}
+  .category-drawer.collapsed .category-drawer-head{padding-bottom:12px;}
+  .category-drawer.collapsed .category-drawer-body{display:none;}
+  .category-drawer-empty{font-size:0.76rem; color:var(--text-faint); padding:4px 2px 8px;}
+
   /* ---------- board ---------- */
-  .board-wrap{overflow-x:auto; padding-bottom:16px; margin:0 -22px; padding-left:22px; padding-right:22px;}
-  .board{display:flex; gap:22px; align-items:flex-start; min-height:120px;}
+  .board{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start; min-height:0;}
 
   /* ---------- gm card ---------- */
   .gm-card{
-    flex:0 0 348px; width:348px;
+    flex:0 0 380px; width:380px;
     background:var(--card-bg); border:1px solid var(--card-line); border-radius:10px;
-    padding:20px 22px 18px; box-shadow:var(--shadow); position:relative;
+    padding:0 0 18px; box-shadow:var(--shadow); position:relative; overflow:hidden;
     background-image: radial-gradient(600px 260px at 100% 0%, rgba(200,149,47,0.07), transparent 60%);
   }
+  .gm-card-header{
+    padding:10px 14px; cursor:pointer; user-select:none;
+    border-bottom:2px solid var(--card-line); background:rgba(0,0,0,0.15);
+  }
+  .gm-card-header-row1{display:flex; align-items:center; gap:8px;}
+  .gm-card-header-row2{display:flex; align-items:center; gap:6px; margin-top:6px; flex-wrap:wrap;}
+  .gm-card-header .drawer-chevron{flex-shrink:0;}
+  .gm-card-header-row1 .card-name{flex:1; min-width:0; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .gm-card-header-row2 .card-sub{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .gm-card-dc{
+    flex-shrink:0; font-family:'JetBrains Mono',monospace; font-size:0.74rem; font-weight:700;
+    color:var(--gold-bright); background:var(--ink-2); border:1px solid var(--line-soft);
+    border-radius:6px; padding:3px 8px; white-space:nowrap;
+  }
+  .gm-card-scene-select{
+    flex-shrink:0; margin-left:auto; appearance:none; border:1px solid var(--line-soft); background:var(--ink-2); color:var(--text-dim);
+    font-size:0.68rem; border-radius:6px; padding:3px 6px; max-width:104px; cursor:pointer;
+  }
+  .gm-card.collapsed{padding-bottom:0;}
+  .gm-card.collapsed .gm-card-header{border-bottom:none;}
+  .gm-card.collapsed .drawer-chevron{transform:rotate(-90deg);}
+  .gm-card.collapsed .gm-card-body{display:none;}
+  .gm-card-body{padding:16px 22px 0;}
   .gm-card.env{border-color:#3d6ea5;}
-  .gm-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
   .gm-card-remove{background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:0.9rem; line-height:1; padding:2px 4px; flex-shrink:0;}
   .gm-card-remove:hover{color:var(--rust-bright);}
 
-  .card-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; border-bottom:2px solid var(--card-line); padding-bottom:10px; margin-bottom:12px;}
   .card-name{font-family:'Fraunces',serif; font-size:1.3rem; font-weight:700; letter-spacing:0.01em; color:#f4ecd9; text-transform:uppercase; line-height:1.2;}
   .card-sub{font-size:0.76rem; color:var(--gold-bright); margin-top:2px; letter-spacing:0.03em;}
   .tier-badge{
@@ -115,8 +165,9 @@
     clip-path:polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
   }
   .tier-badge.pentagon{clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);}
+  .tier-badge.small{width:24px; height:24px; font-size:0.78rem;}
   .env-type-badge{
-    display:inline-block; margin-top:4px; padding:3px 10px; border-radius:4px;
+    display:inline-block; padding:3px 10px; border-radius:4px; flex-shrink:0;
     font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#0e0b08;
   }
   .env-type-badge.type-Exploration{background:linear-gradient(180deg,var(--moss-bright),var(--moss)); }
@@ -186,9 +237,6 @@
   .export-status.ok{color:var(--moss-bright);}
   .export-status.err{color:var(--rust-bright);}
 
-  .footnote{font-size:0.72rem; color:var(--text-faint); line-height:1.5; margin-top:16px;}
-  .footnote code{background:var(--ink-2); padding:1px 5px; border-radius:4px; color:var(--gold-bright); font-family:'JetBrains Mono',monospace; font-size:0.9em;}
-
   ::-webkit-scrollbar{width:9px; height:10px;}
   ::-webkit-scrollbar-track{background:var(--ink-2);}
   ::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
@@ -197,11 +245,15 @@
   /* ---------- scene image library (shown to players live) ---------- */
   .scene-panel{
     background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    padding:16px 18px 14px; margin-bottom:18px;
+    padding:16px 18px 14px; margin-bottom:14px;
   }
-  .scene-panel-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
-  .scene-panel-head h3{margin:0; font-family:'Fraunces',serif; font-size:1rem; font-weight:700; color:var(--text);}
+  .scene-panel-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; cursor:pointer; user-select:none;}
+  .scene-panel-head h3{margin:0; font-family:'Fraunces',serif; font-size:1rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px;}
   .scene-lib-status{font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-faint);}
+  .drawer-chevron{display:inline-block; transition:transform .15s; color:var(--gold-bright); font-size:0.8em;}
+  .scene-panel.collapsed .drawer-chevron{transform:rotate(-90deg);}
+  .scene-panel.collapsed .scene-panel-head{margin-bottom:0;}
+  .scene-panel.collapsed .scene-grid, .scene-panel.collapsed .scene-actions{display:none;}
   .scene-grid{
     display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px;
     max-height:260px; overflow-y:auto; margin-bottom:12px;
@@ -317,39 +369,6 @@
 </style>
 
 <div class="app">
-  <div class="topbar">
-    <div class="brand">
-      <h1>Arena Bestii</h1>
-      <span class="tagline">Ekran Mistrza Gry — Daggerheart / Beast Feast</span>
-    </div>
-    <div class="topbar-actions">
-      <button class="btn small primary" id="btnLoadTrigger">📂 Wczytaj karty JSON</button>
-      <input type="file" id="loadFiles" accept="application/json" multiple style="display:none;">
-      <button class="btn small" id="btnExportJpg">📸 Zrzut widoku (JPG)</button>
-      <button class="btn small" id="btnSaveSession">💾 Zapisz sesję</button>
-      <button class="btn small" id="btnLoadSessionTrigger">🗂 Wczytaj sesję</button>
-      <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
-      <button class="btn small danger" id="btnClearAll">🗑 Wyczyść ekran</button>
-    </div>
-  </div>
-
-  <div class="export-status" id="exportStatus"></div>
-
-  <div class="scene-panel">
-    <div class="scene-panel-head">
-      <h3>🖼️ Biblioteka obrazów — ekran graczy</h3>
-      <span class="scene-lib-status" id="sceneLibStatus"></span>
-    </div>
-    <div class="scene-grid" id="sceneGrid"><div class="scene-empty">Wczytuję bibliotekę…</div></div>
-    <div class="scene-actions">
-      <button class="btn small primary" id="btnSceneAddTrigger">➕ Dodaj obrazy</button>
-      <input type="file" id="addSceneImages" accept="image/*" multiple style="display:none;">
-      <button class="btn small" id="btnSceneRefresh">🔄 Odśwież bibliotekę</button>
-      <button class="btn small" id="btnSceneShow" disabled>👁 Pokaż wybrany graczom</button>
-      <button class="btn small" id="btnSceneHide">✕ Ukryj (tylko Fear)</button>
-    </div>
-  </div>
-
   <div id="captureArea">
     <div class="fear-panel" id="fearPanel">
       <div class="fear-panel-body">
@@ -366,20 +385,65 @@
       </div>
     </div>
 
-    <div class="summary-strip" id="summaryStrip" style="display:none;"></div>
-
-    <div id="boardEmpty" class="summary-empty">
-      <h3>Ekran jest pusty</h3>
-      <div>Wczytaj karty przeciwników lub environmentów zapisane w Kuźni Bestii (przycisk „💾 Zapisz JSON”). Możesz wczytać kilka plików naraz — jeśli mają identyczne statystyki, ustawią się jako kolejne instancje tego samego przeciwnika (Potwór #1, #2, #3…).</div>
-    </div>
-
-    <div class="board-wrap">
-      <div class="board" id="board"></div>
+  <div class="topbar">
+    <div class="topbar-actions">
+      <button class="btn small primary" id="btnLoadTrigger">📂 Wczytaj karty JSON</button>
+      <input type="file" id="loadFiles" accept="application/json" multiple style="display:none;">
+      <button class="btn small" id="btnExportJpg">📸 Zrzut widoku (JPG)</button>
+      <button class="btn small" id="btnSaveSession">💾 Zapisz sesję</button>
+      <button class="btn small" id="btnLoadSessionTrigger">🗂 Wczytaj sesję</button>
+      <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
+      <button class="btn small danger" id="btnClearAll">🗑 Wyczyść ekran</button>
     </div>
   </div>
 
-  <div class="footnote">
-    Format kart: pliki <code>.json</code> zapisane przyciskiem „Zapisz JSON” w Kuźni Bestii. Dla Adversary każda kolejna identyczna karta doda instancję (osobny tor HP/Stress) zamiast duplikować cały statblock — przydatne przy grupach tego samego przeciwnika. Environmenty nie mają toru HP/Stress i wyświetlają się jako pojedyncza karta referencyjna.
+  <div class="export-status" id="exportStatus"></div>
+
+  <div class="scene-panel collapsed" id="scenePanel">
+    <div class="scene-panel-head" id="scenePanelHead">
+      <h3><span class="drawer-chevron">▾</span>🖼️ Biblioteka obrazów — ekran graczy</h3>
+      <span class="scene-lib-status" id="sceneLibStatus"></span>
+    </div>
+    <div class="scene-grid" id="sceneGrid"><div class="scene-empty">Wczytuję bibliotekę…</div></div>
+    <div class="scene-actions">
+      <button class="btn small primary" id="btnSceneAddTrigger">➕ Dodaj obrazy</button>
+      <input type="file" id="addSceneImages" accept="image/*" multiple style="display:none;">
+      <button class="btn small" id="btnSceneRefresh">🔄 Odśwież bibliotekę</button>
+      <button class="btn small" id="btnSceneShow" disabled>👁 Pokaż wybrany graczom</button>
+      <button class="btn small" id="btnSceneHide">✕ Ukryj (tylko Fear)</button>
+    </div>
+  </div>
+
+  <div class="scene-tabs" id="sceneTabs"></div>
+
+  <div class="summary-strip" id="summaryStrip" style="display:none;"></div>
+
+  <div id="boardEmpty" class="summary-empty">
+    <h3>Ekran jest pusty</h3>
+    <div id="boardEmptyText">Wczytaj karty przeciwników lub environmentów zapisane w Kuźni Bestii (przycisk „💾 Zapisz JSON”). Możesz wczytać kilka plików naraz — jeśli mają identyczne statystyki, ustawią się jako kolejne instancje tego samego przeciwnika (Potwór #1, #2, #3…).</div>
+  </div>
+
+  <div class="category-drawer" id="drawerAdv">
+    <div class="category-drawer-head" data-drawer-toggle="adv">
+      <span class="drawer-chevron">▾</span>
+      <h3>⚔ Adversary</h3>
+      <span class="cd-count" id="advCount">0</span>
+    </div>
+    <div class="category-drawer-body">
+      <div class="board" id="boardAdv"></div>
+    </div>
+  </div>
+
+  <div class="category-drawer" id="drawerEnv">
+    <div class="category-drawer-head" data-drawer-toggle="env">
+      <span class="drawer-chevron">▾</span>
+      <h3>🗺 Environment</h3>
+      <span class="cd-count" id="envCount">0</span>
+    </div>
+    <div class="category-drawer-body">
+      <div class="board" id="boardEnv"></div>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -390,9 +454,20 @@
 
   var LS_KEY = 'beastfeast_arena_v1';
   var groupSeq = 1, instSeq = 1;
-  var groups = []; // {id, card, instances:[{id,hpMarked,stressMarked}]}
+  var groups = []; // {id, card, instances:[{id,hpMarked,stressMarked}], sceneId, collapsed}
   var fear = 0;
   var FEAR_MAX = 12;
+
+  /* ---------------- scenes ----------------
+     A card (adversary/environment group) belongs to exactly one bucket:
+     sceneId === null means "Globalne" (shared across every scene), otherwise
+     it's the id of one of the GM-created `scenes`. Assignment happens per-card
+     (see the little scene-picker in each card's header), not at import time. */
+  var scenes = []; // {id, name}
+  var sceneSeq = 1;
+  var activeSceneId = null;
+  var drawerOpen = { adv: true, env: true };
+  var scenePanelOpen = false;
 
   /* ---------------- live Fear sync (Firebase Realtime Database) ----------------
      Pushes the current Fear value to a shared, obscure-path Firebase node so
@@ -631,7 +706,7 @@
   function ingestCard(raw){
     var card = normalizeCard(raw);
     if(card.cardType === 'Environment'){
-      groups.push({ id: groupSeq++, card: card, instances: [] });
+      groups.push({ id: groupSeq++, card: card, instances: [], sceneId: null, collapsed: true });
       return;
     }
     var key = dedupeKey(card);
@@ -639,10 +714,69 @@
     if(existing){
       addInstance(existing);
     } else {
-      var g = { id: groupSeq++, card: card, instances: [] };
+      var g = { id: groupSeq++, card: card, instances: [], sceneId: null, collapsed: true };
       addInstance(g);
       groups.push(g);
     }
+  }
+
+  /* ---------------- scenes (dynamic GM-created tabs) ---------------- */
+  function findScene(id){
+    for(var i=0;i<scenes.length;i++){ if(scenes[i].id === id) return scenes[i]; }
+    return null;
+  }
+
+  function renderSceneTabs(){
+    var wrap = $('sceneTabs');
+    if(!wrap) return;
+    var html = '<button class="scene-tab' + (activeSceneId===null?' active':'') + '" data-scene-tab="">Globalne</button>';
+    scenes.forEach(function(s){
+      html += '<button class="scene-tab' + (activeSceneId===s.id?' active':'') + '" data-scene-tab="' + s.id + '">'
+        + esc(s.name) + '<span class="scene-tab-del" data-scene-del="' + s.id + '" title="Usuń scenę">✕</span></button>';
+    });
+    html += '<button type="button" class="scene-tab-add" id="btnAddScene">➕ Nowa scena</button>';
+    wrap.innerHTML = html;
+
+    Array.prototype.forEach.call(wrap.querySelectorAll('[data-scene-tab]'), function(btn){
+      btn.addEventListener('click', function(e){
+        if(e.target.closest('[data-scene-del]')) return;
+        var idStr = btn.getAttribute('data-scene-tab');
+        activeSceneId = idStr ? Number(idStr) : null;
+        render(); persist();
+      });
+    });
+    Array.prototype.forEach.call(wrap.querySelectorAll('[data-scene-del]'), function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var id = Number(btn.getAttribute('data-scene-del'));
+        var s = findScene(id);
+        if(!s) return;
+        var affected = groups.filter(function(g){ return g.sceneId === id; }).length;
+        var msg = 'Usunąć scenę „' + s.name + '”?' + (affected ? ' (' + affected + ' kart(a) wróci do Globalne)' : '');
+        if(!confirm(msg)) return;
+        scenes = scenes.filter(function(x){ return x.id !== id; });
+        groups.forEach(function(g){ if(g.sceneId === id) g.sceneId = null; });
+        if(activeSceneId === id) activeSceneId = null;
+        render(); persist();
+      });
+    });
+    var addBtn = $('btnAddScene');
+    if(addBtn) addBtn.addEventListener('click', function(){
+      var name = prompt('Nazwa nowej sceny:');
+      if(!name || !name.trim()) return;
+      var s = { id: sceneSeq++, name: name.trim() };
+      scenes.push(s);
+      activeSceneId = s.id;
+      render(); persist();
+    });
+  }
+
+  function sceneOptionsHtml(selectedId){
+    var html = '<option value=""' + (selectedId===null?' selected':'') + '>Globalne</option>';
+    scenes.forEach(function(s){
+      html += '<option value="' + s.id + '"' + (selectedId===s.id?' selected':'') + '>' + esc(s.name) + '</option>';
+    });
+    return html;
   }
 
   /* ---------------- file loading ---------------- */
@@ -690,18 +824,30 @@
     var c = g.card;
     var isEnv = c.cardType === 'Environment';
     var el = document.createElement('div');
-    el.className = 'gm-card' + (isEnv ? ' env' : '');
+    el.className = 'gm-card' + (isEnv ? ' env' : '') + (g.collapsed ? ' collapsed' : '');
     el.dataset.gid = g.id;
 
     var roleLabel = (!isEnv && c.role === 'Horde') ? 'Horde (' + c.hordeHp + '/HP)' : c.role;
     var envBadge = isEnv ? '<div class="env-type-badge type-' + esc(c.role) + '">' + esc(c.role) + '</div>' : '';
-    var tierCls = 'tier-badge' + (isEnv ? ' pentagon' : '');
+    var tierCls = 'tier-badge small' + (isEnv ? ' pentagon' : '');
 
     var html = '';
-    html += '<div class="gm-card-top"><div></div><button class="gm-card-remove" data-remove-group title="Usuń kartę">✕</button></div>';
-    html += '<div class="card-head"><div><div class="card-name">' + esc((c.name||'Bez nazwy').toUpperCase()) + '</div>';
-    html += '<div class="card-sub">Tier ' + c.tier + ' ' + esc(roleLabel) + '</div>' + envBadge + '</div>';
-    html += '<div class="' + tierCls + '">' + c.tier + '</div></div>';
+    // header stays visible whether the card is collapsed or expanded: it doubles
+    // as the collapse/expand toggle AND the "DC as a header" requirement.
+    html += '<div class="gm-card-header" data-toggle-collapse>';
+    html += '<div class="gm-card-header-row1">';
+    html += '<span class="drawer-chevron">▾</span>';
+    html += '<div class="' + tierCls + '">' + c.tier + '</div>';
+    html += '<div class="card-name">' + esc((c.name||'Bez nazwy').toUpperCase()) + '</div>';
+    html += '<div class="gm-card-dc">DC <b>' + c.difficulty + '</b></div>';
+    html += '</div>';
+    html += '<div class="gm-card-header-row2">';
+    html += '<span class="card-sub">Tier ' + c.tier + ' ' + esc(roleLabel) + '</span>' + envBadge;
+    html += '<select class="gm-card-scene-select" data-scene-select title="Scena">' + sceneOptionsHtml(g.sceneId||null) + '</select>';
+    html += '<button class="gm-card-remove" data-remove-group title="Usuń kartę">✕</button>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="gm-card-body">';
 
     if(!isEnv){
       html += '<div class="threshold-bar">';
@@ -718,10 +864,10 @@
 
     if(c.description) html += '<div class="card-desc">' + esc(subst(c.description, c.name)) + '</div>';
 
-    html += '<div class="card-statline"><span><b>Difficulty:</b> ' + c.difficulty + '</span>';
-    if(!isEnv) html += '<span><b>Attack:</b> ' + (c.atkMod>=0?'+':'') + c.atkMod + '</span>';
-    html += '</div>';
-    if(!isEnv) html += '<div class="card-weapon">' + esc(c.weapon||'Weapon') + ': ' + esc(c.range) + ' | ' + esc(c.damage) + ' ' + esc(c.dmgType) + '</div>';
+    if(!isEnv){
+      html += '<div class="card-statline"><span><b>Attack:</b> ' + (c.atkMod>=0?'+':'') + c.atkMod + '</span></div>';
+      html += '<div class="card-weapon">' + esc(c.weapon||'Weapon') + ': ' + esc(c.range) + ' | ' + esc(c.damage) + ' ' + esc(c.dmgType) + '</div>';
+    }
 
     var expLabel = isEnv ? 'Potential Adversaries' : 'Experience';
     var motLabel = isEnv ? 'Impulses' : 'Motives & Tactics';
@@ -738,6 +884,8 @@
     }
 
     html += '<div class="card-foot"><span>Beast Feast — Arena Bestii</span><span>' + esc([c.biome].concat(c.tags||[]).filter(Boolean).join(' · ')) + '</span></div>';
+
+    html += '</div>'; // .gm-card-body
 
     el.innerHTML = html;
 
@@ -777,11 +925,25 @@
       if(addBtn) addBtn.addEventListener('click', function(){ addInstance(g); render(); persist(); });
     }
 
-    el.querySelector('[data-remove-group]').addEventListener('click', function(){
+    el.querySelector('[data-remove-group]').addEventListener('click', function(e){
+      e.stopPropagation();
       if(g.instances.length > 1){
         if(!confirm('Ta karta ma ' + g.instances.length + ' instancje. Usunąć całą kartę?')) return;
       }
       groups = groups.filter(function(x){ return x.id !== g.id; });
+      render(); persist();
+    });
+
+    var sceneSelect = el.querySelector('[data-scene-select]');
+    sceneSelect.addEventListener('click', function(e){ e.stopPropagation(); });
+    sceneSelect.addEventListener('change', function(e){
+      g.sceneId = e.target.value ? Number(e.target.value) : null;
+      render(); persist();
+    });
+
+    el.querySelector('[data-toggle-collapse]').addEventListener('click', function(e){
+      if(e.target.closest('[data-remove-group]') || e.target.closest('[data-scene-select]')) return;
+      g.collapsed = !g.collapsed;
       render(); persist();
     });
 
@@ -869,30 +1031,62 @@
 
   function render(){
     renderFear();
-    var board = $('board');
-    board.innerHTML = '';
-    groups.forEach(function(g){ board.appendChild(renderGroup(g)); });
-    $('boardEmpty').style.display = groups.length ? 'none' : '';
+    renderSceneTabs();
 
-    var totalInstances = 0, aliveInstances = 0, advGroups = 0, envGroups = 0;
-    groups.forEach(function(g){
-      if(g.card.cardType === 'Environment'){ envGroups++; return; }
-      advGroups++;
+    var visible = groups.filter(function(g){ return (g.sceneId||null) === activeSceneId; });
+    var advList = visible.filter(function(g){ return g.card.cardType !== 'Environment'; });
+    var envList = visible.filter(function(g){ return g.card.cardType === 'Environment'; });
+
+    var boardAdv = $('boardAdv'); boardAdv.innerHTML = '';
+    advList.forEach(function(g){ boardAdv.appendChild(renderGroup(g)); });
+    var boardEnv = $('boardEnv'); boardEnv.innerHTML = '';
+    envList.forEach(function(g){ boardEnv.appendChild(renderGroup(g)); });
+
+    $('advCount').textContent = advList.length;
+    $('envCount').textContent = envList.length;
+    $('drawerAdv').classList.toggle('collapsed', !drawerOpen.adv);
+    $('drawerEnv').classList.toggle('collapsed', !drawerOpen.env);
+
+    var empty = $('boardEmpty');
+    if(!visible.length){
+      empty.style.display = '';
+      $('boardEmptyText').textContent = groups.length
+        ? 'Brak kart w tej zakładce. Wybierz inną scenę (lub „Globalne”) albo przypisz tu karty przez selektor sceny w ich nagłówku.'
+        : 'Wczytaj karty przeciwników lub environmentów zapisane w Kuźni Bestii (przycisk „💾 Zapisz JSON”). Możesz wczytać kilka plików naraz — jeśli mają identyczne statystyki, ustawią się jako kolejne instancje tego samego przeciwnika (Potwór #1, #2, #3…).';
+    } else {
+      empty.style.display = 'none';
+    }
+
+    var totalInstances = 0, aliveInstances = 0;
+    advList.forEach(function(g){
       totalInstances += g.instances.length;
       g.instances.forEach(function(inst){ if(inst.hpMarked < g.card.hp) aliveInstances++; });
     });
     var strip = $('summaryStrip');
-    if(groups.length){
+    if(visible.length){
       strip.style.display = 'flex';
       strip.innerHTML =
-        '<span><b>' + advGroups + '</b> typ(y) przeciwników</span>'
+        '<span><b>' + advList.length + '</b> typ(y) przeciwników</span>'
         + '<span><b>' + totalInstances + '</b> instancji łącznie</span>'
         + '<span><b>' + aliveInstances + '</b> wciąż żywych</span>'
-        + (envGroups ? '<span><b>' + envGroups + '</b> environment(y)</span>' : '');
+        + (envList.length ? '<span><b>' + envList.length + '</b> environment(y)</span>' : '');
     } else {
       strip.style.display = 'none';
     }
   }
+
+  /* ---------------- collapsible drawers (static containers, bind once) ---------------- */
+  $('drawerAdv').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
+    drawerOpen.adv = !drawerOpen.adv; render(); persist();
+  });
+  $('drawerEnv').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
+    drawerOpen.env = !drawerOpen.env; render(); persist();
+  });
+  $('scenePanelHead').addEventListener('click', function(){
+    scenePanelOpen = !scenePanelOpen;
+    $('scenePanel').classList.toggle('collapsed', !scenePanelOpen);
+    persist();
+  });
 
   /* ---------------- clear / status ---------------- */
   $('btnClearAll').addEventListener('click', function(){
@@ -909,19 +1103,43 @@
   }
 
   /* ---------------- persistence ---------------- */
+  // shared defaults-fill for groups/scenes loaded from either localStorage or a
+  // session file — keeps old saves (from before scenes/collapse existed) working.
+  function normalizeLoadedState(loaded){
+    groups = loaded.groups || [];
+    groupSeq = loaded.groupSeq || (groups.length+1);
+    instSeq = loaded.instSeq || 1;
+    fear = Number(loaded.fear) || 0;
+    scenes = Array.isArray(loaded.scenes) ? loaded.scenes : [];
+    sceneSeq = loaded.sceneSeq || (scenes.length+1);
+    activeSceneId = (loaded.activeSceneId === undefined || loaded.activeSceneId === null) ? null : Number(loaded.activeSceneId);
+    if(activeSceneId !== null && !findScene(activeSceneId)) activeSceneId = null;
+    drawerOpen = Object.assign({ adv:true, env:true }, loaded.drawerOpen || {});
+    scenePanelOpen = !!loaded.scenePanelOpen;
+    groups.forEach(function(g){
+      g.card = normalizeCard(g.card);
+      if(!Array.isArray(g.instances)) g.instances = [];
+      g.sceneId = (g.sceneId === undefined || g.sceneId === null) ? null : Number(g.sceneId);
+      if(g.sceneId !== null && !findScene(g.sceneId)) g.sceneId = null;
+      if(typeof g.collapsed !== 'boolean') g.collapsed = true;
+    });
+  }
+
   function persist(){
-    try{ localStorage.setItem(LS_KEY, JSON.stringify({ groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear })); }catch(e){}
+    try{
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear,
+        scenes: scenes, sceneSeq: sceneSeq, activeSceneId: activeSceneId,
+        drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen
+      }));
+    }catch(e){}
   }
   function restore(){
     try{
       var raw = localStorage.getItem(LS_KEY);
       if(!raw) return;
-      var loaded = JSON.parse(raw);
-      groups = loaded.groups || [];
-      groupSeq = loaded.groupSeq || (groups.length+1);
-      instSeq = loaded.instSeq || 1;
-      fear = Number(loaded.fear) || 0;
-      groups.forEach(function(g){ g.card = normalizeCard(g.card); if(!Array.isArray(g.instances)) g.instances = []; });
+      normalizeLoadedState(JSON.parse(raw));
+      $('scenePanel').classList.toggle('collapsed', !scenePanelOpen);
     }catch(e){}
   }
 
@@ -941,7 +1159,11 @@
   }
 
   $('btnSaveSession').addEventListener('click', function(){
-    var data = { groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear };
+    var data = {
+      groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear,
+      scenes: scenes, sceneSeq: sceneSeq, activeSceneId: activeSceneId,
+      drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen
+    };
     var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     var stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
     doDownload('arena-bestii-sesja-' + stamp + '.json', blob);
@@ -954,11 +1176,8 @@
     reader.onload = function(){
       try{
         var loaded = JSON.parse(reader.result);
-        groups = loaded.groups || [];
-        groupSeq = loaded.groupSeq || (groups.length+1);
-        instSeq = loaded.instSeq || 1;
-        fear = Number(loaded.fear) || 0;
-        groups.forEach(function(g){ g.card = normalizeCard(g.card); if(!Array.isArray(g.instances)) g.instances = []; });
+        normalizeLoadedState(loaded);
+        $('scenePanel').classList.toggle('collapsed', !scenePanelOpen);
         render(); persist();
         setStatus('Wczytano sesję z pliku.', 'ok');
       }catch(err){
