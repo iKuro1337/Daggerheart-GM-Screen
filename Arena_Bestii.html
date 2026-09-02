@@ -220,6 +220,12 @@
     content:'● NA ŻYWO'; position:absolute; top:4px; right:4px; font-size:0.56rem; font-weight:700;
     background:var(--rust-bright); color:#fff; padding:2px 5px; border-radius:4px; letter-spacing:0.02em;
   }
+  .scene-thumb-del{
+    position:absolute; top:4px; left:4px; z-index:2; width:19px; height:19px; line-height:1;
+    border:none; border-radius:50%; background:rgba(0,0,0,0.6); color:var(--text);
+    font-size:0.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .scene-thumb-del:hover{background:var(--rust-bright); color:#fff;}
   .scene-empty{font-size:0.76rem; color:var(--text-faint); padding:10px 2px;}
   .scene-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
 
@@ -317,8 +323,10 @@
     </div>
     <div class="scene-grid" id="sceneGrid"><div class="scene-empty">Wczytuję bibliotekę…</div></div>
     <div class="scene-actions">
+      <button class="btn small primary" id="btnSceneAddTrigger">➕ Dodaj obrazy</button>
+      <input type="file" id="addSceneImages" accept="image/*" multiple style="display:none;">
       <button class="btn small" id="btnSceneRefresh">🔄 Odśwież bibliotekę</button>
-      <button class="btn small primary" id="btnSceneShow" disabled>👁 Pokaż wybrany graczom</button>
+      <button class="btn small" id="btnSceneShow" disabled>👁 Pokaż wybrany graczom</button>
       <button class="btn small" id="btnSceneHide">✕ Ukryj (tylko Fear)</button>
     </div>
   </div>
@@ -377,6 +385,7 @@
   var FEAR_DB_URL = 'https://daggerheart-fear-default-rtdb.europe-west1.firebasedatabase.app';
   var FEAR_LIVE_SECRET = '136e9f278a37dedcbebfc35bc7a0ef867ca6841e';
   var LIVE_PATH = FEAR_DB_URL + '/live/' + FEAR_LIVE_SECRET;
+  var LIBRARY_PATH = FEAR_DB_URL + '/library/' + FEAR_LIVE_SECRET;
   var fearPushTimer = null;
   function pushFearLive(){
     if(!FEAR_DB_URL || !FEAR_LIVE_SECRET) return;
@@ -390,33 +399,46 @@
     }, 250);
   }
 
-  /* ---------------- scene image library (shown live to players) ---------------- */
-  var GH_IMAGES_API = 'https://api.github.com/repos/iKuro1337/Daggerheart-GM-Screen/contents/Images';
-  var IMG_EXT_RE = /\.(jpe?g|png|webp|gif)$/i;
-  var sceneImages = []; // [{name, url}]
-  var sceneSelected = null; // url of currently selected (staged) thumb
-  var sceneLive = null;     // url currently pushed live (best-effort mirror of Firebase state)
+  /* ---------------- scene image library (shown live to players) ----------------
+     Images live entirely in Firebase (base64, downscaled client-side) - nothing
+     to commit to GitHub. GM adds them straight from a file picker here. */
+  var MAX_IMG_DIM = 1600;
+  var IMG_QUALITY = 0.82;
+  var sceneImages = [];      // [{id, name, data, ts}], newest first
+  var sceneSelectedId = null; // id of currently selected (staged) thumb
+  var sceneLiveId = null;     // id currently pushed live (best-effort mirror of Firebase state)
 
   function sceneSetStatus(msg){ var el = $('sceneLibStatus'); if(el) el.textContent = msg; }
+
+  function fmtBytes(n){
+    if(n > 1024*1024) return (n/(1024*1024)).toFixed(1) + ' MB';
+    return Math.round(n/1024) + ' KB';
+  }
 
   function renderSceneGrid(){
     var grid = $('sceneGrid');
     if(!grid) return;
     if(!sceneImages.length){
-      grid.innerHTML = '<div class="scene-empty">Biblioteka jest pusta. Wrzuć obrazy (jpg/png/webp) do folderu „Images" w Generatory i zsynchronizuj z GitHubem, potem kliknij Odśwież.</div>';
+      grid.innerHTML = '<div class="scene-empty">Biblioteka jest pusta. Kliknij „➕ Dodaj obrazy” i wybierz pliki ze swojego komputera — trafią prosto do Firebase, bez Githuba.</div>';
       return;
     }
     grid.innerHTML = '';
     sceneImages.forEach(function(img){
       var t = document.createElement('div');
-      t.className = 'scene-thumb' + (img.url === sceneSelected ? ' selected' : '') + (img.url === sceneLive ? ' live' : '');
-      t.dataset.url = img.url;
+      t.className = 'scene-thumb' + (img.id === sceneSelectedId ? ' selected' : '') + (img.id === sceneLiveId ? ' live' : '');
       t.title = img.name;
-      t.innerHTML = '<img src="' + esc(img.url) + '" loading="lazy" alt=""><div class="stn">' + esc(img.name) + '</div>';
-      t.addEventListener('click', function(){
-        sceneSelected = (sceneSelected === img.url) ? null : img.url;
+      t.innerHTML = '<img src="' + img.data + '" alt="">'
+        + '<button type="button" class="scene-thumb-del" title="Usuń z biblioteki" data-del="' + esc(img.id) + '">✕</button>'
+        + '<div class="stn">' + esc(img.name) + '</div>';
+      t.querySelector('img').addEventListener('click', function(){
+        sceneSelectedId = (sceneSelectedId === img.id) ? null : img.id;
         renderSceneGrid();
-        $('btnSceneShow').disabled = !sceneSelected;
+        $('btnSceneShow').disabled = !sceneSelectedId;
+      });
+      t.querySelector('[data-del]').addEventListener('click', function(e){
+        e.stopPropagation();
+        if(!confirm('Usunąć „' + img.name + '” z biblioteki?')) return;
+        deleteSceneImage(img.id);
       });
       grid.appendChild(t);
     });
@@ -424,25 +446,30 @@
 
   function loadSceneLibrary(){
     sceneSetStatus('Wczytuję…');
-    fetch(GH_IMAGES_API)
+    fetch(LIBRARY_PATH + '.json')
       .then(function(r){ if(!r.ok) throw new Error('http ' + r.status); return r.json(); })
-      .then(function(list){
-        sceneImages = (Array.isArray(list) ? list : [])
-          .filter(function(it){ return it.type === 'file' && IMG_EXT_RE.test(it.name); })
-          .map(function(it){ return { name: it.name, url: it.download_url }; });
-        sceneSetStatus(sceneImages.length + ' obraz(ów)');
+      .then(function(obj){
+        var entries = obj ? Object.keys(obj).map(function(id){
+          var v = obj[id] || {};
+          return { id: id, name: v.name || 'obraz', data: v.data, ts: v.ts || 0 };
+        }) : [];
+        entries = entries.filter(function(e){ return !!e.data; });
+        entries.sort(function(a,b){ return b.ts - a.ts; });
+        sceneImages = entries;
+        var totalBytes = entries.reduce(function(s,e){ return s + e.data.length; }, 0);
+        sceneSetStatus(entries.length + ' obraz(ów), ~' + fmtBytes(totalBytes));
         renderSceneGrid();
       })
       .catch(function(){
         sceneImages = [];
-        sceneSetStatus('Nie udało się wczytać biblioteki (brak sieci albo folder Images jeszcze nie istnieje na GitHubie).');
+        sceneSetStatus('Nie udało się wczytać biblioteki (brak sieci?).');
         renderSceneGrid();
       });
   }
 
   function fetchCurrentLiveScene(){
     fetch(LIVE_PATH + '/scene.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
-      if(data && data.visible && data.file){ sceneLive = data.file; renderSceneGrid(); }
+      if(data && data.visible && data.libId){ sceneLiveId = data.libId; renderSceneGrid(); }
     }).catch(function(){ /* best-effort only */ });
   }
 
@@ -454,18 +481,79 @@
     });
   }
 
+  function deleteSceneImage(id){
+    sceneSetStatus('Usuwam…');
+    fetch(LIBRARY_PATH + '/' + id + '.json', { method: 'DELETE' })
+      .then(function(){
+        if(sceneSelectedId === id) sceneSelectedId = null;
+        loadSceneLibrary();
+      })
+      .catch(function(){ setStatus('Nie udało się usunąć obrazu (brak sieci?).', 'err'); });
+  }
+
+  // downscale + re-encode a File to a reasonably small JPEG data URL, so a
+  // phone photo doesn't blow past Firebase's free 1 GB / 10 GB-month budget.
+  function downscaleImageFile(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var w = img.naturalWidth, h = img.naturalHeight;
+          var scale = Math.min(1, MAX_IMG_DIM / Math.max(w, h));
+          var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+          var canvas = document.createElement('canvas');
+          canvas.width = cw; canvas.height = ch;
+          canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+          resolve(canvas.toDataURL('image/jpeg', IMG_QUALITY));
+        };
+        img.onerror = function(){ reject(new Error('bad image')); };
+        img.src = reader.result;
+      };
+      reader.onerror = function(){ reject(new Error('read error')); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  $('btnSceneAddTrigger').addEventListener('click', function(){ $('addSceneImages').click(); });
+  $('addSceneImages').addEventListener('change', function(e){
+    var files = Array.prototype.slice.call(e.target.files || []).filter(function(f){ return /^image\//.test(f.type); });
+    e.target.value = '';
+    if(!files.length) return;
+    sceneSetStatus('Wysyłam ' + files.length + ' obraz(ów)…');
+    var chain = Promise.resolve();
+    var okCount = 0, errCount = 0;
+    files.forEach(function(file){
+      chain = chain.then(function(){
+        return downscaleImageFile(file).then(function(dataUrl){
+          return fetch(LIBRARY_PATH + '.json', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ name: file.name, data: dataUrl, ts: Date.now() })
+          });
+        }).then(function(){ okCount++; }).catch(function(){ errCount++; });
+      });
+    });
+    chain.then(function(){
+      loadSceneLibrary();
+      setStatus(errCount ? (okCount + ' dodano, ' + errCount + ' błąd(ów).') : ('Dodano ' + okCount + ' obraz(ów) do biblioteki.'), errCount ? 'err' : 'ok');
+    });
+  });
+
   $('btnSceneRefresh').addEventListener('click', loadSceneLibrary);
   $('btnSceneShow').addEventListener('click', function(){
-    if(!sceneSelected) return;
-    pushScene({ file: sceneSelected, visible: true }).then(function(){
-      sceneLive = sceneSelected;
+    if(!sceneSelectedId) return;
+    var img = sceneImages.filter(function(i){ return i.id === sceneSelectedId; })[0];
+    if(!img) return;
+    pushScene({ file: img.data, libId: img.id, visible: true }).then(function(){
+      sceneLiveId = img.id;
       renderSceneGrid();
       setStatus('Obraz pokazany graczom.', 'ok');
     }).catch(function(){ setStatus('Nie udało się wysłać obrazu (brak sieci?).', 'err'); });
   });
   $('btnSceneHide').addEventListener('click', function(){
-    pushScene({ file: sceneLive || '', visible: false }).then(function(){
-      sceneLive = null;
+    pushScene({ file: '', libId: sceneLiveId || '', visible: false }).then(function(){
+      sceneLiveId = null;
       renderSceneGrid();
       setStatus('Ukryto obraz u graczy.', 'ok');
     }).catch(function(){ setStatus('Nie udało się ukryć obrazu (brak sieci?).', 'err'); });
