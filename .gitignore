@@ -1,0 +1,7 @@
+﻿# OS / editor junk
+Thumbs.db
+.DS_Store
+*.tmp
+
+# scratch space some sync tools use
+tmp/
