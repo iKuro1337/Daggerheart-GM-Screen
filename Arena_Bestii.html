@@ -71,23 +71,25 @@
   .btn[disabled]{opacity:0.45; cursor:not-allowed;}
 
   /* ---------- summary strip ---------- */
-  .summary-empty{padding:60px 20px; text-align:center; color:var(--text-faint); border:1px dashed var(--line); border-radius:12px;}
+  .summary-empty{padding:60px 20px; text-align:center; color:var(--text-faint); border:1px dashed var(--line); border-radius:12px; margin-bottom:14px;}
   .summary-empty h3{color:var(--text-dim); margin-bottom:8px; font-weight:600;}
 
   /* ---------- scene tabs ---------- */
   .scene-tabs{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
   .scene-tab{
-    appearance:none; border:1px solid var(--line); border-bottom:none; background:var(--panel);
-    color:var(--text-dim); padding:7px 12px 6px; border-radius:8px 8px 0 0; font-size:0.78rem;
+    appearance:none; border:1px solid var(--line); background:var(--panel);
+    color:var(--text-dim); padding:7px 12px; border-radius:8px; font-size:0.78rem;
     font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+    transition:border-color .15s, background .15s, color .15s;
   }
   .scene-tab:hover{color:var(--text); border-color:var(--gold);}
-  .scene-tab.active{background:var(--card-bg); color:var(--gold-bright); border-color:var(--gold); box-shadow:0 -2px 0 0 var(--gold) inset;}
+  .scene-tab.active{background:rgba(224,179,85,0.12); color:var(--gold-bright); border-color:var(--gold);}
   .scene-tab-del{opacity:0.5; font-size:0.75rem; padding:1px 3px; border-radius:3px;}
   .scene-tab-del:hover{opacity:1; color:var(--rust-bright); background:rgba(194,70,50,0.15);}
   .scene-tab-add{
     appearance:none; border:1px dashed var(--line); background:none; color:var(--text-faint);
     padding:7px 12px; border-radius:8px; font-size:0.78rem; font-weight:600; cursor:pointer;
+    transition:border-color .15s, color .15s;
   }
   .scene-tab-add:hover{color:var(--gold-bright); border-color:var(--gold);}
 
@@ -95,7 +97,9 @@
   .category-drawer{background:var(--panel); border:1px solid var(--line); border-radius:12px; margin-bottom:14px; overflow:hidden;}
   .category-drawer-head{
     display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; user-select:none;
+    transition:background .15s;
   }
+  .category-drawer-head:hover{background:rgba(200,149,47,0.06);}
   .category-drawer-head h3{margin:0; font-family:'Fraunces',serif; font-size:1rem; font-weight:700; color:var(--text);}
   .category-drawer-head .cd-count{
     font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-faint);
@@ -120,7 +124,9 @@
   .gm-card-header{
     padding:10px 14px; cursor:pointer; user-select:none;
     border-bottom:2px solid var(--card-line); background:rgba(0,0,0,0.15);
+    transition:background-color .15s;
   }
+  .gm-card-header:hover{background-color:rgba(200,149,47,0.1);}
   .gm-card-header-row1{display:flex; align-items:center; gap:8px;}
   .gm-card-header-row2{display:flex; align-items:center; gap:6px; margin-top:6px; flex-wrap:wrap;}
   .gm-card-header .drawer-chevron{flex-shrink:0;}
@@ -154,7 +160,9 @@
   .counter-header{
     padding:8px 10px; cursor:pointer; user-select:none;
     border-bottom:2px solid var(--card-line); background:rgba(0,0,0,0.15);
+    transition:background-color .15s;
   }
+  .counter-header:hover{background-color:rgba(200,149,47,0.1);}
   .counter-card.collapsed .counter-header{border-bottom:none;}
   .counter-card.collapsed .drawer-chevron{transform:rotate(-90deg);}
   .counter-card.collapsed .counter-body{display:none;}
@@ -269,12 +277,19 @@
   /* ---------- scene image library (shown to players live) ---------- */
   .scene-panel{
     background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    padding:16px 18px 14px; margin-bottom:14px; transition:border-color .3s, box-shadow .3s;
+    margin-bottom:14px; overflow:hidden; transition:border-color .3s, box-shadow .3s;
   }
   .scene-panel.live{
     border-color:var(--rust-bright); box-shadow:0 0 0 1px rgba(194,70,50,0.35), 0 0 14px 0 rgba(194,70,50,0.18);
   }
-  .scene-panel-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; cursor:pointer; user-select:none;}
+  .scene-panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    cursor:pointer; user-select:none; padding:12px 16px; transition:background .15s;
+  }
+  .scene-panel-head:hover{background:rgba(200,149,47,0.06);}
+  .scene-panel.live .scene-panel-head:hover{background:rgba(194,70,50,0.1);}
+  .scene-panel-body{padding:0 16px 16px;}
+  .scene-panel.collapsed .scene-panel-head{padding-bottom:12px;}
   .scene-panel-head h3{margin:0; font-family:'Fraunces',serif; font-size:1rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px;}
   .scene-live-badge{
     font-size:0.68rem; font-weight:700; color:var(--rust-bright); letter-spacing:0.02em;
@@ -282,12 +297,12 @@
   .scene-lib-status{font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-faint);}
   .drawer-chevron{display:inline-block; transition:transform .15s; color:var(--gold-bright); font-size:0.8em;}
   .scene-panel.collapsed .drawer-chevron{transform:rotate(-90deg);}
-  .scene-panel.collapsed .scene-panel-head{margin-bottom:0;}
-  .scene-panel.collapsed .scene-grid, .scene-panel.collapsed .scene-actions{display:none;}
+  .scene-panel.collapsed .scene-panel-body{display:none;}
   .scene-grid{
     display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px;
     max-height:260px; overflow-y:auto; margin-bottom:12px;
   }
+  .scene-grid .scene-empty{grid-column:1/-1;}
   .scene-thumb{
     position:relative; aspect-ratio:1/1; border-radius:8px; overflow:hidden; cursor:pointer;
     border:2px solid var(--line-soft); background:var(--ink-2);
@@ -426,13 +441,15 @@
       <span class="scene-live-badge" id="sceneLiveBadge" hidden>🔴 Obraz udostępniony graczom</span>
       <span class="scene-lib-status" id="sceneLibStatus"></span>
     </div>
-    <div class="scene-grid" id="sceneGrid"><div class="scene-empty">Wczytuję bibliotekę…</div></div>
-    <div class="scene-actions">
-      <button class="btn small primary" id="btnSceneAddTrigger">➕ Dodaj obrazy</button>
-      <input type="file" id="addSceneImages" accept="image/*" multiple style="display:none;">
-      <button class="btn small" id="btnSceneRefresh">🔄 Odśwież bibliotekę</button>
-      <button class="btn small" id="btnSceneShow" disabled>👁 Pokaż wybrany graczom</button>
-      <button class="btn small" id="btnSceneHide">✕ Ukryj (tylko Fear)</button>
+    <div class="scene-panel-body">
+      <div class="scene-grid" id="sceneGrid"><div class="scene-empty">Wczytuję bibliotekę…</div></div>
+      <div class="scene-actions">
+        <button class="btn small primary" id="btnSceneAddTrigger">➕ Dodaj obrazy</button>
+        <input type="file" id="addSceneImages" accept="image/*" multiple style="display:none;">
+        <button class="btn small" id="btnSceneRefresh">🔄 Odśwież bibliotekę</button>
+        <button class="btn small" id="btnSceneShow" disabled>👁 Pokaż wybrany graczom</button>
+        <button class="btn small" id="btnSceneHide">✕ Ukryj (tylko Fear)</button>
+      </div>
     </div>
   </div>
 
