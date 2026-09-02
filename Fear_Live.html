@@ -39,57 +39,39 @@
 
   .wrap{ width:100%; max-width:720px; display:flex; flex-direction:column; align-items:center; gap:18px; }
 
-  .tagline{ font-family:'Fraunces','Georgia',serif; font-weight:600; font-size:0.95rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); }
-
   .scene-display{
     width:100%; border-radius:16px; overflow:hidden; border:1px solid var(--line);
     background:var(--ink-2); box-shadow:var(--shadow);
     display:none;
   }
   .scene-display.visible{ display:block; }
-  .scene-display img{ display:block; width:100%; max-height:76vh; object-fit:contain; background:#000; }
+  .scene-display img{ display:block; width:100%; max-height:66vh; object-fit:contain; background:#000; }
 
   .fear-panel{
-    position:relative; overflow:hidden; width:100%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+    position:relative; overflow:hidden; width:100%; flex-shrink:0;
+    display:flex; flex-direction:row; align-items:center; justify-content:center; gap:16px;
     background:var(--panel); border:1px solid var(--line); border-radius:18px;
-    padding:34px 22px 28px;
+    padding:16px 20px;
     box-shadow:var(--shadow);
     --fear-color:88,140,199; --fear-opacity:0.16; --flicker-amt:0;
-    transition:padding .3s ease;
-  }
-  .fear-panel.compact{
-    flex-direction:row; gap:16px; padding:14px 20px;
-  }
-  .fear-panel.compact .fear-track{ padding-top:0; gap:6px; }
-  .fear-panel.compact .fear-pip{ width:clamp(16px,4.5vw,22px); }
-  .fear-panel.compact .fear-label .ft{ font-size:1.1rem; }
-  .fear-panel.compact .fear-label .fc{ font-size:0.82rem; }
-  .fear-panel::before{
-    content:''; position:absolute; inset:-60%; z-index:0; pointer-events:none;
-    background:radial-gradient(circle at 50% 45%, rgba(var(--fear-color), 1) 0%, rgba(var(--fear-color),0) 65%);
-    opacity:var(--fear-opacity);
-    filter:blur(28px);
-    transition:opacity .6s ease, background-color .6s ease;
-    animation:fear-flicker 2.6s infinite ease-in-out;
   }
 
-  .fear-label{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
-  .fear-label .ft{ font-family:'Fraunces',serif; font-weight:700; font-size:2rem; letter-spacing:0.03em; color:var(--text); }
-  .fear-label .fc{ font-family:'JetBrains Mono',monospace; font-size:1.05rem; color:var(--text-dim); }
+  .fear-label{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; }
+  .fear-label .ft{ font-family:'Fraunces',serif; font-weight:700; font-size:1.15rem; letter-spacing:0.03em; color:var(--text); }
+  .fear-label .fc{ font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:var(--text-dim); }
 
   @keyframes fear-flicker {
-    0%   { opacity: 1; }
-    8%   { opacity: calc(1 - var(--flicker-amt,0) * 0.55); }
-    15%  { opacity: 1; }
-    25%  { opacity: calc(1 - var(--flicker-amt,0) * 0.85); }
-    33%  { opacity: calc(1 - var(--flicker-amt,0) * 0.25); }
-    45%  { opacity: 1; }
-    58%  { opacity: calc(1 - var(--flicker-amt,0) * 0.65); }
-    70%  { opacity: calc(1 - var(--flicker-amt,0) * 0.15); }
-    80%  { opacity: 1; }
-    90%  { opacity: calc(1 - var(--flicker-amt,0) * 0.45); }
-    100% { opacity: 1; }
+    0%   { opacity: var(--flicker-amt,0); }
+    8%   { opacity: calc(var(--flicker-amt,0) * 0.45); }
+    15%  { opacity: var(--flicker-amt,0); }
+    25%  { opacity: calc(var(--flicker-amt,0) * 0.15); }
+    33%  { opacity: calc(var(--flicker-amt,0) * 0.75); }
+    45%  { opacity: var(--flicker-amt,0); }
+    58%  { opacity: calc(var(--flicker-amt,0) * 0.35); }
+    70%  { opacity: calc(var(--flicker-amt,0) * 0.85); }
+    80%  { opacity: var(--flicker-amt,0); }
+    90%  { opacity: calc(var(--flicker-amt,0) * 0.55); }
+    100% { opacity: var(--flicker-amt,0); }
   }
   @keyframes spark-rise {
     0%   { transform:translate(0,0) scale(1); opacity:0; }
@@ -99,10 +81,12 @@
 
   .fear-track{
     position:relative; z-index:1;
-    display:flex; gap:clamp(6px,2vw,13px); flex-wrap:wrap; justify-content:center;
-    padding-top:18px;
-    max-width:480px;
+    display:flex; gap:clamp(2px,0.9vw,7px); flex-wrap:nowrap; justify-content:flex-start;
+    padding-top:0; padding-bottom:2px;
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
   }
+  .fear-track::-webkit-scrollbar{ display:none; }
   .fear-sparks{
     position:absolute; left:0; right:0; bottom:6px; height:4px; z-index:2; pointer-events:none; overflow:visible;
   }
@@ -116,8 +100,15 @@
   }
   .fear-spark.active{ animation-play-state:running; }
   .fear-pip{
-    position:relative; width:clamp(26px,7.5vw,42px); aspect-ratio:400/668; flex-shrink:0; overflow:visible;
+    position:relative; width:clamp(13px,3.9vw,22px); aspect-ratio:400/668; flex-shrink:0; overflow:visible;
   }
+  .fp-glow{
+    position:absolute; inset:-45%; z-index:0; pointer-events:none; border-radius:50%;
+    background:radial-gradient(circle, rgba(var(--fear-color),1) 0%, rgba(var(--fear-color),0) 68%);
+    opacity:0; filter:blur(7px);
+    transition:opacity .4s ease;
+  }
+  .fear-pip.marked .fp-glow{ animation:fear-flicker 2.4s infinite ease-in-out; }
   .fp-seg{
     position:absolute; left:0; top:0; width:100%; height:100%;
     -webkit-mask-image:var(--token-icon); mask-image:var(--token-icon);
@@ -151,8 +142,6 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="tagline">Beast Feast — Daggerheart</div>
-    <div class="scene-display" id="sceneDisplay"><img id="sceneImg" alt="Scena"></div>
     <div class="fear-panel" id="fearPanel">
       <div class="fear-label">
         <span class="ft">Fear</span>
@@ -161,6 +150,7 @@
       <div class="fear-track" id="fearTrack"></div>
       <div class="fear-sparks" id="fearSparks"></div>
     </div>
+    <div class="scene-display" id="sceneDisplay"><img id="sceneImg" alt="Scena"></div>
     <div class="live-status" id="liveStatus">● Łączenie…</div>
     <div class="footnote">Ta strona pokazuje na żywo licznik Fear i obraz sceny — kontrolowane przez Mistrza Gry w Arenie Bestii. Możesz zostawić ją otwartą przez całą sesję.</div>
   </div>
@@ -212,7 +202,9 @@
       for(var i=0;i<FEAR_MAX;i++){
         var p = document.createElement('div');
         p.className = 'fear-pip';
-        p.innerHTML = '<div class="fp-seg fp-seg1"></div><div class="fp-seg fp-seg2"></div><div class="fp-seg fp-seg3"></div><div class="fp-seg fp-seg4"></div>';
+        p.innerHTML = '<div class="fp-glow"></div><div class="fp-seg fp-seg1"></div><div class="fp-seg fp-seg2"></div><div class="fp-seg fp-seg3"></div><div class="fp-seg fp-seg4"></div>';
+        p.querySelector('.fp-glow').style.animationDelay = (-Math.random() * 2.4).toFixed(2) + 's';
+        p.querySelector('.fp-glow').style.animationDuration = (1.9 + Math.random() * 1.2).toFixed(2) + 's';
         track.appendChild(p);
       }
     }
@@ -256,7 +248,6 @@
     } else {
       sceneDisplay.classList.remove('visible');
     }
-    panel.classList.toggle('compact', show);
   }
 
   function setStatus(text, cls){
