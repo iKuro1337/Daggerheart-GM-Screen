@@ -327,6 +327,26 @@
   var FEAR_BLUE = [88,140,199];
   var FEAR_RED = [196,45,45];
 
+  /* ---------------- live Fear sync (Firebase Realtime Database) ----------------
+     Pushes the current Fear value to a shared, obscure-path Firebase node so
+     the standalone Fear_Live.html page (shared with players) updates instantly.
+     Best-effort only: if there's no network, or Firebase is unreachable, the
+     GM's local Fear tracking above still works exactly as before. */
+  var FEAR_DB_URL = 'https://daggerheart-fear-default-rtdb.europe-west1.firebasedatabase.app';
+  var FEAR_LIVE_SECRET = '136e9f278a37dedcbebfc35bc7a0ef867ca6841e';
+  var fearPushTimer = null;
+  function pushFearLive(){
+    if(!FEAR_DB_URL || !FEAR_LIVE_SECRET) return;
+    clearTimeout(fearPushTimer);
+    fearPushTimer = setTimeout(function(){
+      fetch(FEAR_DB_URL + '/fear/' + FEAR_LIVE_SECRET + '.json', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(fear)
+      }).catch(function(){ /* offline or DB unreachable - local tracking unaffected */ });
+    }, 250);
+  }
+
   function $(id){ return document.getElementById(id); }
   function esc(s){
     return (s||'').replace(/[&<>"']/g, function(c){
@@ -552,6 +572,8 @@
     var track = $('fearTrack');
     // horns grow from 0 (no fear) to 2x their drawn length (full 12/12 fear)
     track.style.setProperty('--horn-scale', (t * 2).toFixed(3));
+
+    pushFearLive();
 
     if(track.childElementCount !== FEAR_MAX){
       track.innerHTML = '';
