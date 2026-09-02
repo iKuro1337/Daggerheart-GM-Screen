@@ -59,17 +59,17 @@
   #fearCount{ position:relative; z-index:1; font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:var(--text-dim); }
 
   @keyframes fear-flicker {
-    0%   { opacity: var(--flicker-amt,0); }
-    8%   { opacity: calc(var(--flicker-amt,0) * 0.45); }
-    15%  { opacity: var(--flicker-amt,0); }
-    25%  { opacity: calc(var(--flicker-amt,0) * 0.15); }
-    33%  { opacity: calc(var(--flicker-amt,0) * 0.75); }
-    45%  { opacity: var(--flicker-amt,0); }
-    58%  { opacity: calc(var(--flicker-amt,0) * 0.35); }
-    70%  { opacity: calc(var(--flicker-amt,0) * 0.85); }
-    80%  { opacity: var(--flicker-amt,0); }
-    90%  { opacity: calc(var(--flicker-amt,0) * 0.55); }
-    100% { opacity: var(--flicker-amt,0); }
+    0%   { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1)); }
+    8%   { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1) * 0.45); }
+    15%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1)); }
+    25%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1) * 0.15); }
+    33%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1) * 0.75); }
+    45%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1)); }
+    58%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1) * 0.35); }
+    70%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1) * 0.85); }
+    80%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1)); }
+    90%  { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1) * 0.55); }
+    100% { opacity: calc(var(--flicker-amt,0) * var(--fl-mult,1)); }
   }
   @keyframes spark-rise {
     0%   { transform:translate(0,0) scale(1); opacity:0; }
@@ -84,13 +84,17 @@
   .fear-pip{
     position:relative; width:clamp(26px,7.8vw,44px); aspect-ratio:400/668; flex-shrink:0; overflow:visible;
   }
-  .fp-glow{
-    position:absolute; inset:-45%; z-index:0; pointer-events:none; border-radius:50%;
-    background:radial-gradient(circle, rgba(var(--fear-color),1) 0%, rgba(var(--fear-color),0) 68%);
-    opacity:0; filter:blur(7px);
+  .fp-glow-cluster{
+    position:absolute; inset:-45%; z-index:0; pointer-events:none;
+  }
+  .fp-glow-cell{
+    position:absolute; width:58%; height:58%; left:var(--gx,50%); top:var(--gy,50%);
+    transform:translate(-50%,-50%) scale(var(--gs,1)); border-radius:50%;
+    background:radial-gradient(circle, rgba(var(--fear-color),1) 0%, rgba(var(--fear-color),0) 72%);
+    opacity:0; filter:blur(5px);
     transition:opacity .4s ease;
   }
-  .fear-pip.marked .fp-glow{ animation:fear-flicker 2.4s infinite ease-in-out; }
+  .fear-pip.marked .fp-glow-cell{ animation:fear-flicker var(--fdur,2.4s) infinite ease-in-out; animation-delay:var(--fdelay,0s); }
   .fp-fill{
     position:absolute; left:0; top:0; width:100%; height:100%;
     -webkit-mask-image:var(--token-icon); mask-image:var(--token-icon);
@@ -148,6 +152,7 @@
     [196,45,45]     // aggressive - red
   ];
   var SPARKS_PER_PIP = 2; // 2nd spark only kicks in once Fear is past the midpoint ("burst")
+  var GLOW_CELLS_PER_PIP = 5; // small glow blobs scattered around each marker, each flickering on its own
 
   // local mirror of live/<secret> in Firebase
   var state = { fear: 0, scene: { file: '', visible: false } };
@@ -181,9 +186,23 @@
         p.className = 'fear-pip';
         var sparksHtml = '';
         for(var k=0;k<SPARKS_PER_PIP;k++){ sparksHtml += '<div class="fp-spark"></div>'; }
-        p.innerHTML = '<div class="fp-glow"></div><div class="fp-fill"></div><div class="fp-sparks">' + sparksHtml + '</div>';
-        p.querySelector('.fp-glow').style.animationDelay = (-Math.random() * 2.4).toFixed(2) + 's';
-        p.querySelector('.fp-glow').style.animationDuration = (1.9 + Math.random() * 1.2).toFixed(2) + 's';
+        var glowHtml = '';
+        for(var gi=0;gi<GLOW_CELLS_PER_PIP;gi++){ glowHtml += '<div class="fp-glow-cell"></div>'; }
+        p.innerHTML = '<div class="fp-glow-cluster">' + glowHtml + '</div><div class="fp-fill"></div><div class="fp-sparks">' + sparksHtml + '</div>';
+        // scatter the glow cells unevenly around the marker (radiating, not a uniform ring)
+        // so each one flickers on its own timing/intensity, like a cluster of embers.
+        Array.prototype.forEach.call(p.querySelectorAll('.fp-glow-cell'), function(cell, ci){
+          var angle = (ci / GLOW_CELLS_PER_PIP) * Math.PI * 2 + Math.random() * 1.1;
+          var radius = 10 + Math.random() * 28; // % offset from pip center
+          var gx = 50 + Math.cos(angle) * radius;
+          var gy = 50 + Math.sin(angle) * radius;
+          cell.style.setProperty('--gx', gx.toFixed(1) + '%');
+          cell.style.setProperty('--gy', gy.toFixed(1) + '%');
+          cell.style.setProperty('--gs', (0.4 + Math.random() * 0.6).toFixed(2));
+          cell.style.setProperty('--fl-mult', (0.5 + Math.random() * 0.6).toFixed(2));
+          cell.style.setProperty('--fdur', (1.4 + Math.random() * 2.0).toFixed(2) + 's');
+          cell.style.setProperty('--fdelay', (-Math.random() * 2.6).toFixed(2) + 's');
+        });
         Array.prototype.forEach.call(p.querySelectorAll('.fp-spark'), function(sp){
           sp.style.setProperty('--drift', (Math.random() * 10 - 5).toFixed(1) + 'px');
           sp.style.animationDelay = (-Math.random() * 2.2).toFixed(2) + 's';
