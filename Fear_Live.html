@@ -78,12 +78,19 @@
   }
 
   .fear-track{
-    position:relative; z-index:1; overflow:visible;
-    display:flex; gap:clamp(2px,0.9vw,7px); flex-wrap:nowrap; justify-content:flex-start;
-    padding-top:0; padding-bottom:2px;
+    position:relative; z-index:1; box-sizing:border-box; width:100%;
+    display:flex; gap:clamp(4px,1.8vw,14px); flex-wrap:nowrap; justify-content:flex-start;
+    /* generous top/bottom padding so the glow's blur bleed always has room to
+       render even though the row can fall back to horizontal scroll (never
+       wrapping) on screens too narrow to fit every token at full size */
+    padding:34px 2px;
+    overflow-x:auto; overflow-y:visible;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
   }
+  .fear-track::-webkit-scrollbar{ display:none; }
   .fear-pip{
-    position:relative; width:clamp(13px,3.9vw,22px); aspect-ratio:400/668; flex-shrink:0; overflow:visible;
+    position:relative; width:clamp(26px,7.8vw,44px); aspect-ratio:400/668; flex-shrink:0; overflow:visible;
   }
   .fp-glow{
     position:absolute; inset:-45%; z-index:0; pointer-events:none; border-radius:50%;
