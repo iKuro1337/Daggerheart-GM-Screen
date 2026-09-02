@@ -113,11 +113,9 @@
     background:radial-gradient(circle, #ffd27a 0%, #ff6a3d 65%, transparent 100%);
     box-shadow:0 0 5px 1px rgba(255,140,60,0.85);
     opacity:0; pointer-events:none;
-    animation:spark-rise 2.2s ease-in infinite;
-    animation-play-state:paused;
   }
-  .fear-pip.marked .fp-spark:first-child{ animation-play-state:running; }
-  .fear-pip.marked.burst .fp-spark:last-child{ animation-play-state:running; }
+  .fear-pip.marked .fp-spark:first-child{ animation:spark-rise 2.2s ease-in infinite; }
+  .fear-pip.marked.burst .fp-spark:last-child{ animation:spark-rise 2.2s ease-in infinite; }
 
   .live-status{
     font-family:'JetBrains Mono',monospace; font-size:0.72rem; letter-spacing:0.04em;
