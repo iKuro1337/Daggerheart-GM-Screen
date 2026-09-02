@@ -47,13 +47,7 @@
 
   .app{max-width:1900px; margin:0 auto; padding:22px 22px 64px;}
 
-  /* ---------- topbar ---------- */
-  .topbar{
-    display:flex; align-items:center; justify-content:space-between; gap:20px;
-    flex-wrap:wrap;
-    padding-bottom:14px; margin-bottom:14px;
-    border-bottom:1px solid var(--line);
-  }
+  /* ---------- bottom actions bar ---------- */
   .topbar-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
 
   button, select, input, textarea{font-family:inherit; color:inherit;}
@@ -425,19 +419,6 @@
       </div>
     </div>
 
-  <div class="topbar">
-    <div class="topbar-actions">
-      <button class="btn small primary" id="btnLoadTrigger">📂 Wczytaj karty JSON</button>
-      <input type="file" id="loadFiles" accept="application/json" multiple style="display:none;">
-      <button class="btn small" id="btnExportJpg">📸 Zrzut widoku (JPG)</button>
-      <button class="btn small" id="btnSaveSession">💾 Zapisz sesję</button>
-      <button class="btn small" id="btnLoadSessionTrigger">🗂 Wczytaj sesję</button>
-      <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
-      <button class="btn small danger" id="btnClearAll">🗑 Wyczyść ekran</button>
-    </div>
-  </div>
-
-  <div class="export-status" id="exportStatus"></div>
 
   <div class="scene-panel collapsed" id="scenePanel">
     <div class="scene-panel-head" id="scenePanelHead">
@@ -496,6 +477,25 @@
       <div class="board" id="boardEnv"></div>
     </div>
   </div>
+
+  <div class="category-drawer collapsed" id="drawerActions">
+    <div class="category-drawer-head" data-drawer-toggle="actions">
+      <span class="drawer-chevron">▾</span>
+      <h3>⚙ Akcje</h3>
+    </div>
+    <div class="category-drawer-body">
+      <div class="topbar-actions">
+        <button class="btn small primary" id="btnLoadTrigger">📂 Wczytaj karty JSON</button>
+        <input type="file" id="loadFiles" accept="application/json" multiple style="display:none;">
+        <button class="btn small" id="btnExportJpg">📸 Zrzut widoku (JPG)</button>
+        <button class="btn small" id="btnSaveSession">💾 Zapisz sesję</button>
+        <button class="btn small" id="btnLoadSessionTrigger">🗂 Wczytaj sesję</button>
+        <input type="file" id="loadSessionFile" accept="application/json" style="display:none;">
+        <button class="btn small danger" id="btnClearAll">🗑 Wyczyść ekran</button>
+      </div>
+      <div class="export-status" id="exportStatus"></div>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -518,7 +518,7 @@
   var scenes = []; // {id, name}
   var sceneSeq = 1;
   var activeSceneId = null;
-  var drawerOpen = { adv: true, env: true, counters: true };
+  var drawerOpen = { adv: true, env: true, counters: true, actions: false };
   var scenePanelOpen = false;
 
   /* ---------------- counters ----------------
@@ -1130,6 +1130,7 @@
     $('envCount').textContent = envList.length;
     $('drawerAdv').classList.toggle('collapsed', !drawerOpen.adv);
     $('drawerEnv').classList.toggle('collapsed', !drawerOpen.env);
+    $('drawerActions').classList.toggle('collapsed', !drawerOpen.actions);
 
     var empty = $('boardEmpty');
     if(!visible.length){
@@ -1251,6 +1252,9 @@
   $('drawerCounters').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
     drawerOpen.counters = !drawerOpen.counters; render(); persist();
   });
+  $('drawerActions').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
+    drawerOpen.actions = !drawerOpen.actions; render(); persist();
+  });
   $('btnAddCounter').addEventListener('click', function(){
     var name = prompt('Nazwa licznika:');
     if(!name || !name.trim()) return;
@@ -1291,7 +1295,7 @@
     sceneSeq = loaded.sceneSeq || (scenes.length+1);
     activeSceneId = (loaded.activeSceneId === undefined || loaded.activeSceneId === null) ? null : Number(loaded.activeSceneId);
     if(activeSceneId !== null && !findScene(activeSceneId)) activeSceneId = null;
-    drawerOpen = Object.assign({ adv:true, env:true, counters:true }, loaded.drawerOpen || {});
+    drawerOpen = Object.assign({ adv:true, env:true, counters:true, actions:false }, loaded.drawerOpen || {});
     scenePanelOpen = !!loaded.scenePanelOpen;
     groups.forEach(function(g){
       g.card = normalizeCard(g.card);
