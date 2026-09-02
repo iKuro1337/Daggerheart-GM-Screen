@@ -266,18 +266,6 @@
     position:relative; display:flex; gap:13px; flex-wrap:wrap; justify-content:center;
     padding-top:24px;
   }
-  .fear-sparks{
-    position:absolute; left:0; right:0; bottom:6px; height:4px; z-index:2; pointer-events:none; overflow:visible;
-  }
-  .fear-spark{
-    position:absolute; bottom:0; width:4px; height:4px; border-radius:50%;
-    background:radial-gradient(circle, #ffd27a 0%, #ff6a3d 65%, transparent 100%);
-    box-shadow:0 0 5px 1px rgba(255,140,60,0.85);
-    opacity:0; pointer-events:none;
-    animation:spark-rise 2.2s ease-in infinite;
-    animation-play-state:paused;
-  }
-  .fear-spark.active{ animation-play-state:running; }
   .fear-pip{
     position:relative; width:28px; height:47px; cursor:pointer; flex-shrink:0; overflow:visible;
   }
@@ -288,31 +276,37 @@
     transition:opacity .4s ease;
   }
   .fear-pip.marked .fp-glow{ animation:fear-flicker 2.4s infinite ease-in-out; }
-  .fp-seg{
+  .fp-fill{
     position:absolute; left:0; top:0; width:100%; height:100%;
     -webkit-mask-image:var(--token-icon); mask-image:var(--token-icon);
     -webkit-mask-size:100% 100%; mask-size:100% 100%;
     -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
     -webkit-mask-position:center top; mask-position:center top;
     background-color:rgba(150,160,178,0.32);
-    transition:background-color .4s;
+    transition:background-color .4s, filter .4s;
   }
-  .fp-seg1{ clip-path:inset(75% 0 0 0); }
-  .fp-seg2{ clip-path:inset(50% 0 25% 0); }
-  .fp-seg3{ clip-path:inset(25% 0 50% 0); }
-  .fp-seg4{ clip-path:inset(0 0 75% 0); }
-  .fear-pip.marked .fp-seg{
+  .fear-pip.marked .fp-fill{
+    background-color:rgb(var(--fear-color, 88,140,199));
     filter:drop-shadow(0 0 4px rgba(0,0,0,0.35));
   }
-  .fear-pip.marked .fp-seg1{ background-color:rgb(var(--seg1-color, 130,138,150)); }
-  .fear-pip.marked .fp-seg2{ background-color:rgb(var(--seg2-color, 130,138,150)); }
-  .fear-pip.marked .fp-seg3{ background-color:rgb(var(--seg3-color, 130,138,150)); }
-  .fear-pip.marked .fp-seg4{ background-color:rgb(var(--seg4-color, 130,138,150)); }
+  .fp-sparks{
+    position:absolute; left:50%; top:4%; width:0; height:0; z-index:2; pointer-events:none; overflow:visible;
+  }
+  .fp-spark{
+    position:absolute; left:-2px; top:-2px; width:4px; height:4px; border-radius:50%;
+    background:radial-gradient(circle, #ffd27a 0%, #ff6a3d 65%, transparent 100%);
+    box-shadow:0 0 5px 1px rgba(255,140,60,0.85);
+    opacity:0; pointer-events:none;
+    animation:spark-rise 2.2s ease-in infinite;
+    animation-play-state:paused;
+  }
+  .fear-pip.marked .fp-spark:first-child{ animation-play-state:running; }
+  .fear-pip.marked.burst .fp-spark:last-child{ animation-play-state:running; }
   .fear-actions{display:flex; gap:6px; align-items:center;}
 
   /* fallback rendering for JPG export (html2canvas has no CSS mask-image support) */
-  #captureArea.exporting .fp-seg{ display:none; }
-  #captureArea.exporting .fear-sparks{ display:none; }
+  #captureArea.exporting .fp-fill{ display:none; }
+  #captureArea.exporting .fp-sparks{ display:none; }
   #captureArea.exporting .fear-pip{
     top:8px; border-radius:50%; width:22px; height:22px;
     border:1.6px solid rgba(140,160,190,0.55); background:rgba(255,255,255,0.03);
@@ -366,7 +360,6 @@
           <span class="fc" id="fearCount">0 / 12</span>
         </div>
         <div class="fear-track" id="fearTrack"></div>
-        <div class="fear-sparks" id="fearSparks"></div>
         <div class="fear-actions">
           <button class="btn tiny" id="btnFearMinus">−1</button>
           <button class="btn tiny" id="btnFearPlus">+1</button>
@@ -402,8 +395,6 @@
   var groups = []; // {id, card, instances:[{id,hpMarked,stressMarked}]}
   var fear = 0;
   var FEAR_MAX = 12;
-  var FEAR_BLUE = [88,140,199];
-  var FEAR_RED = [196,45,45];
 
   /* ---------------- live Fear sync (Firebase Realtime Database) ----------------
      Pushes the current Fear value to a shared, obscure-path Firebase node so
@@ -800,49 +791,56 @@
   }
 
   /* ---------------- fear counter ---------------- */
-  // 4-segment token colour wave: segment 1 (bottom of the icon) lights up
-  // first as Fear rises through 0-3, then segment 2 through 3-6, etc. Each
-  // segment eases from a neutral grey to its own "danger" colour.
-  var SEG_NEUTRAL = [130,138,150];
-  var SEG_TARGETS = [
-    [88,140,199],   // seg1 - blue (matches the old low-fear glow colour)
-    [130,105,190],  // seg2 - violet
-    [188,80,120],   // seg3 - rose
-    [196,45,45]     // seg4 - full red (matches the old high-fear glow colour)
+  // Every lit token is filled with ONE shared colour that escalates
+  // continuously from a calm blue through violet/rose to an aggressive red
+  // as Fear climbs from 0 to FEAR_MAX (no more per-icon fill-percentage
+  // banding). Sparks are emitted from each lit icon itself, and both their
+  // count and speed scale with how many tokens are currently lit.
+  var FEAR_STOPS = [
+    [88,140,199],   // calm - blue
+    [130,105,190],  // violet
+    [188,80,120],   // rose
+    [196,45,45]     // aggressive - red
   ];
-  var NUM_SPARKS = 7;
+  var SPARKS_PER_PIP = 2; // 2nd spark only kicks in once Fear is past the midpoint ("burst")
 
   function lerpColor(a, b, t){
     return [0,1,2].map(function(i){ return Math.round(a[i] + (b[i]-a[i]) * t); }).join(',');
   }
 
+  function colorForFear(t){
+    var n = FEAR_STOPS.length - 1;
+    var pos = Math.max(0, Math.min(1, t)) * n;
+    var idx = Math.min(n - 1, Math.floor(pos));
+    return lerpColor(FEAR_STOPS[idx], FEAR_STOPS[idx + 1], pos - idx);
+  }
+
   function renderFear(){
     fear = Math.max(0, Math.min(FEAR_MAX, fear));
     var t = fear / FEAR_MAX;
-    var c = [0,1,2].map(function(i){ return Math.round(FEAR_BLUE[i] + (FEAR_RED[i]-FEAR_BLUE[i]) * t); });
     var panel = $('fearPanel');
-    panel.style.setProperty('--fear-color', c.join(','));
-    panel.style.setProperty('--fear-opacity', (0.16 + t * 0.56).toFixed(3));
+    panel.style.setProperty('--fear-color', colorForFear(t));
     panel.style.setProperty('--flicker-amt', t.toFixed(3));
     $('fearCount').textContent = fear + ' / ' + FEAR_MAX;
 
-    var track = $('fearTrack');
-    for(var s=0; s<4; s++){
-      var localT = Math.max(0, Math.min(1, (fear - s*3) / 3));
-      track.style.setProperty('--seg' + (s+1) + '-color', lerpColor(SEG_NEUTRAL, SEG_TARGETS[s], localT));
-    }
-
     pushFearLive();
 
+    var track = $('fearTrack');
     if(track.childElementCount !== FEAR_MAX){
       track.innerHTML = '';
       for(var i=0;i<FEAR_MAX;i++){
         var p = document.createElement('div');
         p.className = 'fear-pip';
         p.dataset.idx = i;
-        p.innerHTML = '<div class="fp-glow"></div><div class="fp-seg fp-seg1"></div><div class="fp-seg fp-seg2"></div><div class="fp-seg fp-seg3"></div><div class="fp-seg fp-seg4"></div>';
+        var sparksHtml = '';
+        for(var k=0;k<SPARKS_PER_PIP;k++){ sparksHtml += '<div class="fp-spark"></div>'; }
+        p.innerHTML = '<div class="fp-glow"></div><div class="fp-fill"></div><div class="fp-sparks">' + sparksHtml + '</div>';
         p.querySelector('.fp-glow').style.animationDelay = (-Math.random() * 2.4).toFixed(2) + 's';
         p.querySelector('.fp-glow').style.animationDuration = (1.9 + Math.random() * 1.2).toFixed(2) + 's';
+        Array.prototype.forEach.call(p.querySelectorAll('.fp-spark'), function(sp){
+          sp.style.setProperty('--drift', (Math.random() * 10 - 5).toFixed(1) + 'px');
+          sp.style.animationDelay = (-Math.random() * 2.2).toFixed(2) + 's';
+        });
         p.addEventListener('click', function(e){
           var idx = Number(e.currentTarget.dataset.idx);
           fear = (idx < fear) ? idx : idx + 1;
@@ -851,36 +849,16 @@
         track.appendChild(p);
       }
     }
+
+    // more Fear => sparks fire faster (and, via the .burst class, more of them per icon)
+    var sparkDur = 2.3 - t * 1.5;
     Array.prototype.forEach.call(track.children, function(p, i){
       p.classList.toggle('marked', i < fear);
-    });
-
-    renderSparks(t);
-  }
-
-  function renderSparks(t){
-    var wrap = $('fearSparks');
-    if(!wrap) return;
-    if(wrap.childElementCount !== NUM_SPARKS){
-      wrap.innerHTML = '';
-      for(var i=0;i<NUM_SPARKS;i++){
-        var sp = document.createElement('div');
-        sp.className = 'fear-spark';
-        var leftPct = 6 + (88 * i / (NUM_SPARKS - 1));
-        var drift = (Math.random() * 16 - 8).toFixed(1) + 'px';
-        var delay = (Math.random() * 2.2).toFixed(2) + 's';
-        var dur = (1.7 + Math.random() * 1.1).toFixed(2) + 's';
-        sp.style.left = leftPct.toFixed(1) + '%';
-        sp.style.setProperty('--drift', drift);
-        sp.style.animationDelay = delay;
-        sp.style.animationDuration = dur;
-        wrap.appendChild(sp);
-      }
-    }
-    // more Fear => more of the spark slots are actively animating
-    var activeCount = Math.round(t * NUM_SPARKS);
-    Array.prototype.forEach.call(wrap.children, function(sp, i){
-      sp.classList.toggle('active', i < activeCount);
+      p.classList.toggle('burst', t > 0.5);
+      var jitter = 0.85 + (i % 6) * 0.05;
+      Array.prototype.forEach.call(p.querySelectorAll('.fp-spark'), function(sp){
+        sp.style.animationDuration = (sparkDur * jitter).toFixed(2) + 's';
+      });
     });
   }
   $('btnFearMinus').addEventListener('click', function(){ fear = Math.max(0, fear-1); renderFear(); persist(); });
