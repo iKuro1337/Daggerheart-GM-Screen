@@ -156,6 +156,38 @@
   .gm-card-remove{background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:0.9rem; line-height:1; padding:2px 4px; flex-shrink:0;}
   .gm-card-remove:hover{color:var(--rust-bright);}
 
+  /* ---------- counters ---------- */
+  .counter-card{
+    background:var(--card-bg); border:1px solid var(--card-line); border-radius:10px;
+    margin-bottom:10px; overflow:hidden;
+  }
+  .counter-card:last-child{margin-bottom:0;}
+  .counter-header{
+    display:flex; align-items:center; gap:8px; padding:10px 12px; cursor:pointer; user-select:none;
+    border-bottom:2px solid var(--card-line); background:rgba(0,0,0,0.15);
+  }
+  .counter-card.collapsed .counter-header{border-bottom:none;}
+  .counter-card.collapsed .drawer-chevron{transform:rotate(-90deg);}
+  .counter-card.collapsed .counter-body{display:none;}
+  .counter-name{flex:1; min-width:0; font-family:'Fraunces',serif; font-size:1rem; font-weight:700; color:#f4ecd9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .counter-value-badge{
+    flex-shrink:0; font-family:'JetBrains Mono',monospace; font-size:0.82rem; font-weight:700;
+    color:var(--gold-bright); background:var(--ink-2); border:1px solid var(--line-soft);
+    border-radius:6px; padding:3px 10px; white-space:nowrap;
+  }
+  .counter-btn{
+    flex-shrink:0; background:var(--ink-2); border:1px solid var(--line-soft); color:var(--text);
+    border-radius:6px; width:26px; height:26px; cursor:pointer; font-family:'JetBrains Mono',monospace; font-weight:700; line-height:1;
+  }
+  .counter-btn:hover{border-color:var(--gold-bright); color:var(--gold-bright);}
+  .counter-body{padding:12px 14px 14px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;}
+  .counter-field{display:flex; flex-direction:column; gap:4px; font-size:0.7rem; color:var(--text-dim);}
+  .counter-field input{
+    background:var(--ink-2); border:1px solid var(--line-soft); color:var(--text); border-radius:6px;
+    padding:5px 8px; font-family:'JetBrains Mono',monospace; font-size:0.82rem; width:90px;
+  }
+  .counter-field input[type=text]{width:150px; font-family:'Fraunces',serif;}
+
   .card-name{font-family:'Fraunces',serif; font-size:1.3rem; font-weight:700; letter-spacing:0.01em; color:#f4ecd9; text-transform:uppercase; line-height:1.2;}
   .card-sub{font-size:0.76rem; color:var(--gold-bright); margin-top:2px; letter-spacing:0.03em;}
   .tier-badge{
@@ -444,6 +476,19 @@
       <div class="board" id="boardEnv"></div>
     </div>
   </div>
+
+  <div class="category-drawer" id="drawerCounters">
+    <div class="category-drawer-head" data-drawer-toggle="counters">
+      <span class="drawer-chevron">▾</span>
+      <h3>🔢 Countery</h3>
+      <span class="cd-count" id="counterCount">0</span>
+    </div>
+    <div class="category-drawer-body">
+      <button type="button" class="btn small primary" id="btnAddCounter" style="margin-bottom:12px;">➕ Nowy licznik</button>
+      <div class="category-drawer-empty" id="counterEmpty">Brak counterów. Dodaj pierwszy przyciskiem powyżej.</div>
+      <div id="counterList"></div>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -466,8 +511,14 @@
   var scenes = []; // {id, name}
   var sceneSeq = 1;
   var activeSceneId = null;
-  var drawerOpen = { adv: true, env: true };
+  var drawerOpen = { adv: true, env: true, counters: true };
   var scenePanelOpen = false;
+
+  /* ---------------- counters ----------------
+     Freestanding GM counters (alarm tracks, countdowns, faction clocks, ...).
+     Not scoped to a scene — always visible regardless of the active scene tab. */
+  var counters = []; // {id, name, value, target, step, collapsed}
+  var counterSeq = 1;
 
   /* ---------------- live Fear sync (Firebase Realtime Database) ----------------
      Pushes the current Fear value to a shared, obscure-path Firebase node so
@@ -1032,8 +1083,14 @@
   function render(){
     renderFear();
     renderSceneTabs();
+    renderCounters();
 
-    var visible = groups.filter(function(g){ return (g.sceneId||null) === activeSceneId; });
+    // a card marked "Globalne" (sceneId === null) shows on every scene tab;
+    // a scene-specific card only shows while that scene is active.
+    var visible = groups.filter(function(g){
+      var sid = g.sceneId||null;
+      return sid === null || sid === activeSceneId;
+    });
     var advList = visible.filter(function(g){ return g.card.cardType !== 'Environment'; });
     var envList = visible.filter(function(g){ return g.card.cardType === 'Environment'; });
 
@@ -1075,12 +1132,89 @@
     }
   }
 
+  /* ---------------- counters (freestanding, not scene-scoped) ---------------- */
+  function renderCounters(){
+    var wrap = $('counterList');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    counters.forEach(function(ctr){ wrap.appendChild(renderCounter(ctr)); });
+    $('counterCount').textContent = counters.length;
+    $('drawerCounters').classList.toggle('collapsed', !drawerOpen.counters);
+    var emptyEl = $('counterEmpty');
+    if(emptyEl) emptyEl.style.display = counters.length ? 'none' : '';
+  }
+
+  function renderCounter(ctr){
+    var el = document.createElement('div');
+    el.className = 'counter-card' + (ctr.collapsed ? ' collapsed' : '');
+    el.dataset.cid = ctr.id;
+    var html = '';
+    html += '<div class="counter-header" data-toggle-collapse>';
+    html += '<span class="drawer-chevron">▾</span>';
+    html += '<div class="counter-name">' + esc(ctr.name || 'Licznik') + '</div>';
+    html += '<div class="counter-value-badge"><b>' + ctr.value + '</b> / ' + ctr.target + '</div>';
+    html += '<button type="button" class="counter-btn" data-ctr-dec title="Odejmij">−</button>';
+    html += '<button type="button" class="counter-btn" data-ctr-inc title="Dodaj">+</button>';
+    html += '<button type="button" class="gm-card-remove" data-ctr-remove title="Usuń licznik">✕</button>';
+    html += '</div>';
+    html += '<div class="counter-body">';
+    html += '<label class="counter-field">Nazwa<input type="text" data-ctr-name value="' + esc(ctr.name||'') + '"></label>';
+    html += '<label class="counter-field">Wartość<input type="number" data-ctr-value value="' + ctr.value + '"></label>';
+    html += '<label class="counter-field">Cel<input type="number" data-ctr-target value="' + ctr.target + '"></label>';
+    html += '<label class="counter-field">Krok<input type="number" min="1" data-ctr-step value="' + (ctr.step||1) + '"></label>';
+    html += '</div>';
+    el.innerHTML = html;
+
+    el.querySelector('[data-toggle-collapse]').addEventListener('click', function(e){
+      if(e.target.closest('[data-ctr-dec],[data-ctr-inc],[data-ctr-remove]')) return;
+      ctr.collapsed = !ctr.collapsed; render(); persist();
+    });
+    el.querySelector('[data-ctr-dec]').addEventListener('click', function(e){
+      e.stopPropagation();
+      ctr.value -= (ctr.step||1); render(); persist();
+    });
+    el.querySelector('[data-ctr-inc]').addEventListener('click', function(e){
+      e.stopPropagation();
+      ctr.value += (ctr.step||1); render(); persist();
+    });
+    el.querySelector('[data-ctr-remove]').addEventListener('click', function(e){
+      e.stopPropagation();
+      if(!confirm('Usunąć licznik „' + (ctr.name||'Licznik') + '”?')) return;
+      counters = counters.filter(function(x){ return x.id !== ctr.id; });
+      render(); persist();
+    });
+    el.querySelector('[data-ctr-name]').addEventListener('change', function(e){
+      ctr.name = e.target.value; render(); persist();
+    });
+    el.querySelector('[data-ctr-value]').addEventListener('change', function(e){
+      var v = Number(e.target.value); ctr.value = isNaN(v) ? 0 : v; render(); persist();
+    });
+    el.querySelector('[data-ctr-target]').addEventListener('change', function(e){
+      var v = Number(e.target.value); ctr.target = isNaN(v) ? 0 : v; render(); persist();
+    });
+    el.querySelector('[data-ctr-step]').addEventListener('change', function(e){
+      var v = Number(e.target.value); ctr.step = (isNaN(v) || v<=0) ? 1 : v; persist();
+    });
+    return el;
+  }
+
   /* ---------------- collapsible drawers (static containers, bind once) ---------------- */
   $('drawerAdv').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
     drawerOpen.adv = !drawerOpen.adv; render(); persist();
   });
   $('drawerEnv').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
     drawerOpen.env = !drawerOpen.env; render(); persist();
+  });
+  $('drawerCounters').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
+    drawerOpen.counters = !drawerOpen.counters; render(); persist();
+  });
+  $('btnAddCounter').addEventListener('click', function(){
+    var name = prompt('Nazwa licznika:');
+    if(!name || !name.trim()) return;
+    var targetStr = prompt('Wartość docelowa:', '10');
+    var target = Number(targetStr);
+    counters.push({ id: counterSeq++, name: name.trim(), value: 0, target: isNaN(target) ? 0 : target, step: 1, collapsed: true });
+    render(); persist();
   });
   $('scenePanelHead').addEventListener('click', function(){
     scenePanelOpen = !scenePanelOpen;
@@ -1114,7 +1248,7 @@
     sceneSeq = loaded.sceneSeq || (scenes.length+1);
     activeSceneId = (loaded.activeSceneId === undefined || loaded.activeSceneId === null) ? null : Number(loaded.activeSceneId);
     if(activeSceneId !== null && !findScene(activeSceneId)) activeSceneId = null;
-    drawerOpen = Object.assign({ adv:true, env:true }, loaded.drawerOpen || {});
+    drawerOpen = Object.assign({ adv:true, env:true, counters:true }, loaded.drawerOpen || {});
     scenePanelOpen = !!loaded.scenePanelOpen;
     groups.forEach(function(g){
       g.card = normalizeCard(g.card);
@@ -1123,6 +1257,14 @@
       if(g.sceneId !== null && !findScene(g.sceneId)) g.sceneId = null;
       if(typeof g.collapsed !== 'boolean') g.collapsed = true;
     });
+    counters = Array.isArray(loaded.counters) ? loaded.counters : [];
+    counterSeq = loaded.counterSeq || (counters.length+1);
+    counters.forEach(function(ctr){
+      ctr.value = Number(ctr.value) || 0;
+      ctr.target = Number(ctr.target) || 0;
+      ctr.step = Number(ctr.step) || 1;
+      if(typeof ctr.collapsed !== 'boolean') ctr.collapsed = true;
+    });
   }
 
   function persist(){
@@ -1130,7 +1272,8 @@
       localStorage.setItem(LS_KEY, JSON.stringify({
         groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear,
         scenes: scenes, sceneSeq: sceneSeq, activeSceneId: activeSceneId,
-        drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen
+        drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen,
+        counters: counters, counterSeq: counterSeq
       }));
     }catch(e){}
   }
@@ -1162,7 +1305,8 @@
     var data = {
       groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear,
       scenes: scenes, sceneSeq: sceneSeq, activeSceneId: activeSceneId,
-      drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen
+      drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen,
+      counters: counters, counterSeq: counterSeq
     };
     var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     var stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
