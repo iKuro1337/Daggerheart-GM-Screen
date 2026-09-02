@@ -37,9 +37,17 @@
     padding:24px;
   }
 
-  .wrap{ width:100%; max-width:560px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .wrap{ width:100%; max-width:720px; display:flex; flex-direction:column; align-items:center; gap:18px; }
 
   .tagline{ font-family:'Fraunces','Georgia',serif; font-weight:600; font-size:0.95rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); }
+
+  .scene-display{
+    width:100%; border-radius:16px; overflow:hidden; border:1px solid var(--line);
+    background:var(--ink-2); box-shadow:var(--shadow);
+    display:none;
+  }
+  .scene-display.visible{ display:block; }
+  .scene-display img{ display:block; width:100%; max-height:76vh; object-fit:contain; background:#000; }
 
   .fear-panel{
     position:relative; overflow:hidden; width:100%;
@@ -48,7 +56,15 @@
     padding:34px 22px 28px;
     box-shadow:var(--shadow);
     --fear-color:88,140,199; --fear-opacity:0.16;
+    transition:padding .3s ease;
   }
+  .fear-panel.compact{
+    flex-direction:row; gap:16px; padding:14px 20px;
+  }
+  .fear-panel.compact .fear-track{ padding-top:0; gap:6px; }
+  .fear-panel.compact .fear-pip{ width:clamp(18px,5vw,26px); }
+  .fear-panel.compact .fear-label .ft{ font-size:1.1rem; }
+  .fear-panel.compact .fear-label .fc{ font-size:0.82rem; }
   .fear-panel::before{
     content:''; position:absolute; inset:-60%; z-index:0; pointer-events:none;
     background:radial-gradient(circle at 50% 45%, rgba(var(--fear-color), 1) 0%, rgba(var(--fear-color),0) 65%);
@@ -109,6 +125,7 @@
 <body>
   <div class="wrap">
     <div class="tagline">Beast Feast — Daggerheart</div>
+    <div class="scene-display" id="sceneDisplay"><img id="sceneImg" alt="Scena"></div>
     <div class="fear-panel" id="fearPanel">
       <div class="fear-label">
         <span class="ft">Fear</span>
@@ -117,7 +134,7 @@
       <div class="fear-track" id="fearTrack"></div>
     </div>
     <div class="live-status" id="liveStatus">● Łączenie…</div>
-    <div class="footnote">Ta strona pokazuje aktualny licznik Fear na żywo — kontrolowany przez Mistrza Gry w Arenie Bestii. Możesz zostawić ją otwartą przez całą sesję.</div>
+    <div class="footnote">Ta strona pokazuje na żywo licznik Fear i obraz sceny — kontrolowane przez Mistrza Gry w Arenie Bestii. Możesz zostawić ją otwartą przez całą sesję.</div>
   </div>
 
 <script>
@@ -128,13 +145,16 @@
   var FEAR_MAX = 12;
   var FEAR_BLUE = [88,140,199];
   var FEAR_RED = [196,45,45];
-  var fear = 0;
-  var track, panel, countEl, statusEl;
+
+  // local mirror of live/<secret> in Firebase
+  var state = { fear: 0, scene: { file: '', visible: false } };
+
+  var track, panel, countEl, statusEl, sceneDisplay, sceneImg;
 
   function $(id){ return document.getElementById(id); }
 
   function renderFear(){
-    fear = Math.max(0, Math.min(FEAR_MAX, Number(fear) || 0));
+    var fear = Math.max(0, Math.min(FEAR_MAX, Number(state.fear) || 0));
     var t = fear / FEAR_MAX;
     var c = [0,1,2].map(function(i){ return Math.round(FEAR_BLUE[i] + (FEAR_RED[i]-FEAR_BLUE[i]) * t); });
     panel.style.setProperty('--fear-color', c.join(','));
@@ -156,14 +176,49 @@
     });
   }
 
+  function renderScene(){
+    var sc = state.scene || {};
+    var show = !!(sc.visible && sc.file);
+    if(show){
+      if(sceneImg.getAttribute('src') !== sc.file) sceneImg.setAttribute('src', sc.file);
+      sceneDisplay.classList.add('visible');
+    } else {
+      sceneDisplay.classList.remove('visible');
+    }
+    panel.classList.toggle('compact', show);
+  }
+
   function setStatus(text, cls){
     statusEl.textContent = text;
     statusEl.className = 'live-status' + (cls ? ' ' + cls : '');
   }
 
+  // apply a Firebase SSE event's {path, data} onto our local `state` mirror.
+  // path is '/' (whole node), '/fear', '/scene', or a deeper subpath.
+  function applyPatch(path, data){
+    if(!path || path === '/'){
+      state = data && typeof data === 'object' ? data : { fear: 0, scene: { file:'', visible:false } };
+      if(!state.scene) state.scene = { file:'', visible:false };
+      return;
+    }
+    var parts = path.replace(/^\//,'').split('/').filter(Boolean);
+    if(!parts.length) return;
+    if(parts[0] === 'fear'){
+      state.fear = data;
+    } else if(parts[0] === 'scene'){
+      if(parts.length === 1){
+        state.scene = data && typeof data === 'object' ? data : { file:'', visible:false };
+      } else {
+        if(!state.scene) state.scene = { file:'', visible:false };
+        state.scene[parts[1]] = data;
+      }
+    }
+  }
+
   function boot(){
     track = $('fearTrack'); panel = $('fearPanel'); countEl = $('fearCount'); statusEl = $('liveStatus');
-    renderFear();
+    sceneDisplay = $('sceneDisplay'); sceneImg = $('sceneImg');
+    renderFear(); renderScene();
 
     if(!('EventSource' in window)){
       setStatus('● Przeglądarka nie wspiera trybu live', 'warn');
@@ -171,15 +226,16 @@
     }
 
     var connectedOnce = false;
-    var url = FEAR_DB_URL + '/fear/' + FEAR_LIVE_SECRET + '.json';
+    var url = FEAR_DB_URL + '/live/' + FEAR_LIVE_SECRET + '.json';
     var es = new EventSource(url);
 
     function handle(e){
       try{
         var payload = JSON.parse(e.data);
-        if(!payload || payload.path !== '/') return;
-        fear = Number(payload.data) || 0;
+        if(!payload) return;
+        applyPatch(payload.path, payload.data);
         renderFear();
+        renderScene();
         connectedOnce = true;
         setStatus('● Live', 'ok');
       }catch(err){ /* ignore malformed event */ }
