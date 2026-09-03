@@ -76,6 +76,7 @@
 
   /* ---------- scene tabs ---------- */
   .scene-tabs{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .scene-tabs[hidden]{display:none;}
   .scene-tab{
     appearance:none; border:1px solid var(--line); background:var(--panel);
     color:var(--text-dim); padding:7px 12px; border-radius:8px; font-size:0.78rem;
@@ -1583,6 +1584,10 @@
     $('drawerAdv').classList.toggle('collapsed', !drawerOpen.adv);
     $('drawerEnv').classList.toggle('collapsed', !drawerOpen.env);
     $('drawerActions').classList.toggle('collapsed', !drawerOpen.actions);
+
+    // scene tabs only exist to filter Adversary/Environment cards by scene — once both
+    // of those sections are collapsed, the tabs have nothing left to do, so hide them too.
+    $('sceneTabs').hidden = !(drawerOpen.adv || drawerOpen.env);
 
     var empty = $('boardEmpty');
     if(!visible.length){
