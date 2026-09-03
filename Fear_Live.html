@@ -93,6 +93,7 @@
   .fp-icon-wrap{
     position:absolute; left:50%; bottom:0; width:100%; aspect-ratio:400/668;
     transform:translateX(-50%); pointer-events:none;
+    opacity:1; transition:opacity .15s linear;
   }
   .fp-glow{
     position:absolute; inset:-55%; z-index:0; pointer-events:none; border-radius:50%;
@@ -190,49 +191,56 @@
     return FEAR_STOPS[idx].map(function(v,i){ return Math.round(v + (FEAR_STOPS[idx+1][i]-v) * (pos-idx)); });
   }
 
-  // tempo/energia dymu rośnie z Fear: przy niskim leniwy i wolny, przy wysokim gwałtowny i gęsty
+  // tempo/gęstość/turbulencja ognia rosną z Fear: przy niskim leniwie i rzadko (nieliczne,
+  // wolne iskry), przy wysokim gwałtownie i gęsto (mnóstwo szybkich, drgających cząstek)
   function paramsForFear(fearVal){
     var t = fearVal/FEAR_MAX;
-    return { t:t, energy: lerp(0.22, 1.6, t), vigor: lerp(0.45, 1.85, t) };
+    return {
+      t: t,
+      energy: lerp(0.22, 1.6, t),
+      spawnRate: lerp(20, 85, t),
+      life: lerp(1.1, 0.4, t),
+      wobFreqScale: lerp(0.4, 2.2, t),
+      wobAmtScale: lerp(0.5, 2.0, t),
+      vxScale: lerp(0.5, 1.35, t),
+      pull: lerp(1.6, 4.2, t)
+    };
   }
 
-  // punkty na całym znaczniku, z których wydobywają się smużki dymu — nie tylko czubek.
-  var ANCHORS = [
-    { fx:-0.68, fy:0.10, dir:-1, hMul:0.60, w:0.40 },
-    { fx: 0.62, fy:0.05, dir: 1, hMul:0.56, w:0.38 },
-    { fx:-0.48, fy:0.28, dir:-1, hMul:0.72, w:0.38 },
-    { fx: 0.50, fy:0.34, dir: 1, hMul:0.76, w:0.39 },
-    { fx:-0.32, fy:0.50, dir:-1, hMul:0.84, w:0.37 },
-    { fx: 0.34, fy:0.55, dir: 1, hMul:0.86, w:0.37 },
-    { fx:-0.16, fy:0.72, dir:-1, hMul:0.94, w:0.34 },
-    { fx: 0.20, fy:0.80, dir: 1, hMul:0.98, w:0.34 },
-    { fx:-0.05, fy:0.92, dir:-1, hMul:1.02, w:0.32 },
-    { fx: 0.08, fy:0.96, dir: 1, hMul:1.04, w:0.32 }
-  ];
-
-  function makeTendrilRows(){
-    var ROWS = 8;
-    var rows = [];
-    for(var r=0;r<=ROWS;r++){
-      rows.push({
-        phaseA: Math.random()*Math.PI*2, freqA: rand(0.55,1.1),
-        phaseB: Math.random()*Math.PI*2, freqB: rand(1.3,2.1)
-      });
-    }
-    return rows;
-  }
-
+  // stan emitera pojedynczego slotu — samo płonięcie/gaśnięcie; kształt płomienia
+  // powstaje z chmury wielu małych, granularnych cząstek (particle physics), nie z wektorowej sylwetki
   function makeFlameState(){
-    var tendrils = ANCHORS.map(function(a){
-      return {
-        fx:a.fx, fy:a.fy, dir:a.dir, hMul:a.hMul, w:a.w,
-        rows: makeTendrilRows(),
-        outPhase: Math.random()*Math.PI*2, outFreq: rand(0.5,0.85),
-        swayPhase: Math.random()*Math.PI*2, swayFreq: rand(0.9,1.4),
-        outAmt: rand(0.85,1.2)
-      };
+    return { active:false, acc: Math.random() };
+  }
+
+  function spawnParticle(i, opts){
+    opts = opts || {};
+    var p = paramsForFear(lastFear);
+    var life = opts.life!=null ? opts.life : (p.life * rand(0.85,1.15));
+    var spread = opts.spread!=null ? opts.spread : 0.85;
+    var cx = emitX[i];
+    embers.push({
+      idx:i, cx:cx,
+      x: cx + rand(-1,1)*spread*(iconW[i]*0.48),
+      y: iconBottom[i],
+      vx: rand(-6,6)*p.vxScale,
+      wobFreq: rand(1.3,2.3)*p.wobFreqScale,
+      wobPhase: Math.random()*Math.PI*2,
+      wobAmt: rand(2.5,5.5)*p.wobAmtScale,
+      energy: p.energy,
+      pull: p.pull,
+      vy: -(smokeMaxH[i]/life) * rand(0.85,1.1),
+      life: life, age:0,
+      size: opts.size!=null ? opts.size : rand(iconW[i]*0.22, iconW[i]*0.34),
+      hot: opts.hot!=null ? opts.hot : 1
     });
-    return { height:0, targetHeight:0, flare:0, tendrils:tendrils, emberAcc: Math.random() };
+  }
+
+  function igniteFlash(i){
+    var p = paramsForFear(lastFear);
+    var burstCount = Math.round(lerp(7, 20, p.t));
+    for(var k=0;k<burstCount;k++) spawnParticle(i, {spread:0.95, life: rand(0.32,0.52)*lerp(1.3,0.8,p.t)});
+    spawnParticle(i, {spread:0.28, size:iconW[i]*0.4, hot:1.6, life:0.26+p.t*0.14});
   }
 
   function buildTrack(){
@@ -269,142 +277,8 @@
       var topY = r.top - stageRect.top;
       var botY = r.bottom - stageRect.top;
       emitX.push(cx); emitY.push(topY); iconBottom.push(botY); iconW.push(r.width);
-      smokeMaxH.push(Math.max(20, topY - 6));
+      smokeMaxH.push(Math.max(20, botY - 6));
     }
-  }
-
-  function smoothClosedPath(pts){
-    var n = pts.length;
-    ctx.moveTo((pts[0][0]+pts[n-1][0])/2, (pts[0][1]+pts[n-1][1])/2);
-    for(var k=0;k<n;k++){
-      var p0=pts[k], p1=pts[(k+1)%n];
-      var mx=(p0[0]+p1[0])/2, my=(p0[1]+p1[1])/2;
-      ctx.quadraticCurveTo(p0[0],p0[1], mx, my);
-    }
-    ctx.closePath();
-  }
-
-  function tendrilAnchor(i, tendril){
-    var ax = emitX[i] + tendril.fx * (iconW[i]*0.5);
-    var ay = iconBottom[i] - tendril.fy * (iconBottom[i]-emitY[i]);
-    var room = Math.max(10, ay - 6);
-    var maxH = room * lerp(0.34, 0.56, tendril.hMul);
-    return { x:ax, y:ay, maxH:maxH };
-  }
-
-  function buildTendrilPts(anchor, tendril, effHeight, vigor, tt, widthScale){
-    var left=[], right=[];
-    var rows = tendril.rows;
-    for(var r=0;r<rows.length;r++){
-      var hf = r/(rows.length-1);
-      var row = rows[r];
-      var hook = tendril.dir * tendril.outAmt * hf * Math.exp(1 - hf*1.7) * (1.8 + vigor*3.2);
-      var ambientSway = hf*1.3*(1.4+vigor*2.6) * Math.sin(tt*tendril.swayFreq + tendril.swayPhase);
-      var lateral = hook + ambientSway;
-      var wob = Math.sin(tt*row.freqA+row.phaseA)*0.5 + Math.sin(tt*row.freqB+row.phaseB)*0.3;
-      var rw = tendril._baseWidth*widthScale*Math.pow(1-hf, 0.8);
-      rw *= Math.max(0.16, 1 + wob*(0.12+hf*0.4)*vigor);
-      var x = anchor.x + lateral;
-      var y = anchor.y - hf*effHeight;
-      left.push([x-rw/2,y]); right.push([x+rw/2,y]);
-    }
-    return left.concat(right.reverse());
-  }
-
-  function drawBaseHaze(i, fs, fearColor){
-    var h = fs.height * (1 + fs.flare*0.3);
-    if(h < 0.02) return;
-    var cx = emitX[i], topY = emitY[i], botY = iconBottom[i], w = iconW[i];
-    var puffs = [
-      { fy:0.06, r:w*0.62, a:0.30 },
-      { fy:0.32, r:w*0.58, a:0.26 },
-      { fy:0.58, r:w*0.52, a:0.22 },
-      { fy:0.82, r:w*0.42, a:0.18 },
-      { fy:0.98, r:w*0.30, a:0.14 }
-    ];
-    ctx.filter = 'blur(4px)';
-    ctx.globalCompositeOperation = 'lighter';
-    for(var p=0;p<puffs.length;p++){
-      var puff = puffs[p];
-      if(puff.fy > h) continue;
-      var py = botY - puff.fy*(botY-topY)*1.15;
-      var fade = 1 - puff.fy*0.4;
-      var g = ctx.createRadialGradient(cx, py, 0, cx, py, puff.r);
-      g.addColorStop(0, 'rgba('+fearColor[0]+','+fearColor[1]+','+fearColor[2]+','+(puff.a*fade)+')');
-      g.addColorStop(1, 'rgba('+fearColor[0]+','+fearColor[1]+','+fearColor[2]+',0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(cx, py, puff.r, 0, Math.PI*2); ctx.fill();
-    }
-    ctx.filter = 'none';
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  function drawFlame(i, fs, params, fearColor){
-    var tt = time*params.energy;
-    var flareBoost = 1 + fs.flare*0.6;
-    var tendrils = fs.tendrils;
-    var tipForEmber = null;
-
-    drawBaseHaze(i, fs, fearColor);
-
-    for(var k=0;k<tendrils.length;k++){
-      var tendril = tendrils[k];
-      tendril._baseWidth = iconW[i]*tendril.w;
-      var anchor = tendrilAnchor(i, tendril);
-      var effHeight = anchor.maxH * fs.height * (1 + fs.flare*0.4);
-      if(effHeight < 0.5) continue;
-
-      var outerPts = buildTendrilPts(anchor, tendril, effHeight, params.vigor, tt, 1);
-      var gOuter = ctx.createLinearGradient(anchor.x, anchor.y, anchor.x, anchor.y-effHeight);
-      gOuter.addColorStop(0, 'rgba('+HOT[0]+','+HOT[1]+','+HOT[2]+','+Math.min(1,0.85*flareBoost)+')');
-      gOuter.addColorStop(0.34, 'rgba('+HOT[0]+','+HOT[1]+','+HOT[2]+',0.72)');
-      gOuter.addColorStop(1, 'rgba('+fearColor[0]+','+fearColor[1]+','+fearColor[2]+',0.62)');
-      ctx.filter = 'blur(1.1px)';
-      ctx.beginPath(); smoothClosedPath(outerPts);
-      ctx.fillStyle = gOuter; ctx.fill();
-      ctx.filter = 'none';
-
-      var innerPts = buildTendrilPts(anchor, tendril, effHeight*0.92, params.vigor*0.75, tt*1.04, 0.4);
-      var gInner = ctx.createLinearGradient(anchor.x, anchor.y, anchor.x, anchor.y-effHeight*0.92);
-      gInner.addColorStop(0, 'rgba(255,253,244,'+Math.min(1,0.9*flareBoost)+')');
-      gInner.addColorStop(0.55, 'rgba(255,250,235,0.42)');
-      gInner.addColorStop(1, 'rgba(255,250,235,0.03)');
-      ctx.beginPath(); smoothClosedPath(innerPts);
-      ctx.fillStyle = gInner; ctx.fill();
-
-      if(fs.height > 0.55) tipForEmber = { x: anchor.x, y: anchor.y-effHeight*0.9 };
-    }
-
-    fs.emberAcc += (1/60) * (0.5 + params.t*2.4);
-    if(fs.emberAcc > 1 && tipForEmber){
-      fs.emberAcc = 0;
-      embers.push({
-        x: tipForEmber.x + rand(-3,3), y: tipForEmber.y,
-        vx: rand(-8,8), vy: -rand(16,30)*(0.6+params.t),
-        life: rand(0.55,0.95), age:0, size: rand(1.1,2.0)
-      });
-    }
-  }
-
-  function drawEmbers(dt, fearColor){
-    ctx.globalCompositeOperation = 'lighter';
-    var alive = [];
-    for(var k=0;k<embers.length;k++){
-      var e = embers[k];
-      e.age += dt;
-      var t = e.age/e.life;
-      if(t>=1) continue;
-      e.x += e.vx*dt; e.y += e.vy*dt;
-      var alpha = (1-t);
-      var col = lerpColor(HOT, fearColor, Math.min(1,t*1.3));
-      ctx.beginPath();
-      ctx.fillStyle = 'rgba('+col[0]+','+col[1]+','+col[2]+','+(alpha*0.85)+')';
-      ctx.arc(e.x, e.y, Math.max(0.1,e.size*(1-t*0.4)), 0, Math.PI*2);
-      ctx.fill();
-      alive.push(e);
-    }
-    embers = alive;
-    ctx.globalCompositeOperation = 'source-over';
   }
 
   function renderFear(){
@@ -422,8 +296,8 @@
       var shouldBurn = i < fear;
       var fs = flames[i];
       slotEls[i].classList.toggle('lit', shouldBurn);
-      if(shouldBurn && fs.targetHeight===0){ fs.targetHeight = 1; fs.flare = 1; }
-      else if(!shouldBurn && fs.targetHeight===1){ fs.targetHeight = 0; }
+      if(shouldBurn && !fs.active){ fs.active = true; lastFear = fear; igniteFlash(i); }
+      else if(!shouldBurn && fs.active){ fs.active = false; }
     }
     lastFear = fear;
   }
@@ -435,22 +309,73 @@
 
     if(cssW < 1) { requestAnimationFrame(step); return; }
 
-    var params = paramsForFear(lastFear);
     var fearColor = colorForFear(lastFear/FEAR_MAX);
-
-    ctx.clearRect(0,0,cssW,cssH);
+    var liveParams = paramsForFear(lastFear);
 
     for(var i=0;i<FEAR_MAX;i++){
       var fs = flames[i];
-      if(!fs) continue;
-      var growRate = (fs.targetHeight>fs.height ? 8.5 : 6.5) * (0.55+params.energy*0.55);
-      fs.height += (fs.targetHeight - fs.height) * Math.min(1, dt*growRate);
-      if(Math.abs(fs.targetHeight-fs.height) < 0.003) fs.height = fs.targetHeight;
-      fs.flare *= Math.pow(0.006, dt);
-      if(fs.height > 0.01 || fs.flare > 0.02){ drawFlame(i, fs, params, fearColor); }
+      if(!fs || !fs.active) continue;
+      fs.acc += dt*liveParams.spawnRate;
+      while(fs.acc >= 1){ spawnParticle(i); fs.acc -= 1; }
     }
 
-    drawEmbers(dt, fearColor);
+    ctx.clearRect(0,0,cssW,cssH);
+    ctx.globalCompositeOperation = 'lighter';
+
+    var counts = {};
+    for(var p2=0;p2<embers.length;p2++){ counts[embers[p2].idx] = (counts[embers[p2].idx]||0)+1; }
+    Object.keys(counts).forEach(function(key){
+      var i = +key;
+      var c = fearColor;
+      var r = iconW[i]*0.6;
+      var g = ctx.createRadialGradient(emitX[i], iconBottom[i], 0, emitX[i], iconBottom[i], r);
+      g.addColorStop(0, 'rgba('+c[0]+','+c[1]+','+c[2]+',0.30)');
+      g.addColorStop(1, 'rgba('+c[0]+','+c[1]+','+c[2]+',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(emitX[i], iconBottom[i], r, 0, Math.PI*2); ctx.fill();
+    });
+
+    var alive = [];
+    for(var p=0;p<embers.length;p++){
+      var pt = embers[p];
+      pt.age += dt;
+      var t = pt.age/pt.life;
+      if(t >= 1) continue;
+      var toCenter = (pt.cx - pt.x) * pt.pull * t;
+      pt.x += (pt.vx + Math.sin(time*pt.energy*pt.wobFreq + pt.wobPhase)*pt.wobAmt + toCenter) * dt;
+      pt.y += pt.vy * dt * (1 - t*0.2);
+
+      var fadeIn = Math.min(1, t/0.10);
+      var fadeOut = 1 - Math.max(0, (t-0.55))/0.45;
+      var alpha = Math.max(0, Math.min(fadeIn, fadeOut)) * pt.hot;
+      var size = pt.size * (1 - t*0.5) * (pt.hot>1 ? (1+(1-t)*0.6) : 1);
+
+      var mixT = Math.min(1, t/0.65);
+      var col = lerpColor(HOT, fearColor, mixT);
+
+      var stretch = 1 + Math.min(1.3, Math.abs(pt.vy)/140);
+      var squish = 1/Math.sqrt(stretch);
+      ctx.save();
+      ctx.translate(pt.x, pt.y);
+      ctx.scale(squish, stretch);
+      var grd = ctx.createRadialGradient(0,0,0, 0,0, Math.max(0.1,size));
+      grd.addColorStop(0, 'rgba('+col[0]+','+col[1]+','+col[2]+','+(0.95*alpha)+')');
+      grd.addColorStop(0.55, 'rgba('+col[0]+','+col[1]+','+col[2]+','+(0.45*alpha)+')');
+      grd.addColorStop(1, 'rgba('+col[0]+','+col[1]+','+col[2]+',0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.arc(0,0,Math.max(0.1,size),0,Math.PI*2); ctx.fill();
+      ctx.restore();
+
+      alive.push(pt);
+    }
+    embers = alive;
+    ctx.globalCompositeOperation = 'source-over';
+
+    for(var i2=0;i2<FEAR_MAX;i2++){
+      var fsi = flames[i2];
+      var burning = (fsi && fsi.active) || (counts[i2]||0) > 0;
+      if(iconWraps[i2]) iconWraps[i2].style.opacity = burning ? '0' : '1';
+    }
 
     requestAnimationFrame(step);
   }
