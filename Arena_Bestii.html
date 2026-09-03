@@ -111,6 +111,27 @@
   .category-drawer.collapsed .category-drawer-body{display:none;}
   .category-drawer-empty{font-size:0.76rem; color:var(--text-faint); padding:4px 2px 8px;}
 
+  /* ---------- audio library (Fear Tracker gets pushed a YouTube video id to play) ---------- */
+  .audio-add-row{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;}
+  .audio-add-row input[type=text]{
+    flex:1; min-width:140px; background:var(--ink-2); border:1px solid var(--line-soft); color:var(--text);
+    border-radius:6px; padding:7px 10px; font-family:'Work Sans',sans-serif; font-size:0.8rem; appearance:none;
+  }
+  .audio-track-row{
+    display:flex; align-items:center; gap:8px; padding:7px 10px; border:1px solid var(--line-soft);
+    border-radius:8px; margin-bottom:6px; background:rgba(255,255,255,0.02);
+  }
+  .audio-track-row.active{border-color:var(--gold); background:rgba(224,179,85,0.09);}
+  .audio-track-name{flex:1; min-width:0; font-size:0.82rem; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .audio-now-playing{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:12px; padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+  .audio-now-label{font-size:0.78rem; color:var(--text-dim); flex:1 1 auto; min-width:120px;}
+  .audio-loop-toggle{display:flex; align-items:center; gap:5px; font-size:0.72rem; color:var(--text-dim); cursor:pointer; user-select:none;}
+  .audio-volume{display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-dim);}
+  .audio-volume input[type=range]{width:90px;}
+
   /* ---------- board ---------- */
   .board{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start; min-height:0;}
 
@@ -488,6 +509,29 @@
 
   <div class="scene-tabs" id="sceneTabs"></div>
 
+  <div class="category-drawer collapsed" id="drawerAudio">
+    <div class="category-drawer-head" data-drawer-toggle="audio">
+      <span class="drawer-chevron">▾</span>
+      <h3>🔊 Dźwięki / Muzyka — ekran graczy</h3>
+      <span class="cd-count" id="audioCount">0</span>
+    </div>
+    <div class="category-drawer-body">
+      <div class="audio-add-row">
+        <input type="text" id="audioNewName" placeholder="Nazwa (np. Walka z bossem)">
+        <input type="text" id="audioNewUrl" placeholder="Link YouTube">
+        <button type="button" class="btn small primary" id="btnAudioAdd">➕ Dodaj</button>
+      </div>
+      <div class="category-drawer-empty" id="audioEmpty">Brak zapisanych dźwięków. Dodaj pierwszy powyżej (wklej link YouTube).</div>
+      <div id="audioList"></div>
+      <div class="audio-now-playing">
+        <span class="audio-now-label" id="audioNowLabel">Nic nie gra</span>
+        <button type="button" class="btn tiny" id="btnAudioStop">⏹ Stop</button>
+        <label class="audio-loop-toggle"><input type="checkbox" id="audioLoopToggle">🔁 Zapętlenie</label>
+        <label class="audio-volume">🔉<input type="range" id="audioVolume" min="0" max="100" value="70"></label>
+      </div>
+    </div>
+  </div>
+
   <div class="category-drawer" id="drawerCounters">
     <div class="category-drawer-head" data-drawer-toggle="counters">
       <span class="drawer-chevron">▾</span>
@@ -568,7 +612,7 @@
   var scenes = []; // {id, name}
   var sceneSeq = 1;
   var activeSceneId = null;
-  var drawerOpen = { adv: true, env: true, counters: true, actions: false };
+  var drawerOpen = { adv: true, env: true, counters: true, actions: false, audio: false };
   var scenePanelOpen = false;
 
   /* ---------------- counters ----------------
@@ -610,6 +654,48 @@
         body: JSON.stringify(fearColors)
       }).catch(function(){ /* offline or DB unreachable - local tracking unaffected */ });
     }, 250);
+  }
+
+  /* ---------------- audio library (Fear Tracker plays whatever is pushed here) ----------------
+     GM keeps a small local library of named YouTube links (persisted locally, not in Firebase -
+     it's just text). Clicking ▶ on a track pushes {videoId,playing,loop,volume,playToken} to the
+     same live Firebase node used for fear/colors/scene; Fear_Live.html plays it in a hidden
+     YouTube player. Best-effort only, same as the rest of the live sync. */
+  var audioLibrary = [];       // [{id, name, videoId}]
+  var audioLibrarySeq = 1;
+  var audioState = { videoId: null, playing: false, loop: false, volume: 70, playToken: 0 };
+
+  function parseYouTubeId(url){
+    if(!url) return null;
+    url = url.trim();
+    var m = /(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(url);
+    if(m) return m[1];
+    if(/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
+    return null;
+  }
+
+  var audioPushTimer = null;
+  function pushAudioLive(){
+    if(!FEAR_DB_URL || !FEAR_LIVE_SECRET) return;
+    clearTimeout(audioPushTimer);
+    audioPushTimer = setTimeout(function(){
+      fetch(LIVE_PATH + '/audio.json', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(audioState)
+      }).catch(function(){ /* offline or DB unreachable - local tracking unaffected */ });
+    }, 200);
+  }
+
+  function playAudioTrack(t){
+    audioState.videoId = t.videoId;
+    audioState.playing = true;
+    audioState.playToken = (audioState.playToken||0) + 1;
+    render(); persist(); pushAudioLive();
+  }
+  function stopAudioLive(){
+    audioState.playing = false;
+    render(); persist(); pushAudioLive();
   }
 
   /* ---------------- scene image library (shown live to players) ----------------
@@ -1377,6 +1463,7 @@
     renderFear();
     renderSceneTabs();
     renderCounters();
+    renderAudioLibrary();
 
     // a card marked "Globalne" (sceneId === null) shows on every scene tab;
     // a scene-specific card only shows while that scene is active.
@@ -1417,6 +1504,42 @@
     if(v < 0) v = 0;
     if(ctr.target > 0 && v > ctr.target) v = ctr.target;
     return v;
+  }
+
+  function renderAudioLibrary(){
+    var drawer = $('drawerAudio');
+    if(!drawer) return;
+    drawer.classList.toggle('collapsed', !drawerOpen.audio);
+    $('audioCount').textContent = audioLibrary.length;
+
+    var list = $('audioList');
+    list.innerHTML = '';
+    audioLibrary.forEach(function(t){ list.appendChild(renderAudioTrack(t)); });
+    $('audioEmpty').style.display = audioLibrary.length ? 'none' : '';
+
+    var current = audioLibrary.filter(function(t){ return t.videoId === audioState.videoId; })[0];
+    $('audioNowLabel').textContent = !audioState.playing
+      ? 'Nic nie gra'
+      : ('▶ ' + (current ? current.name : 'utwór spoza biblioteki'));
+    $('audioLoopToggle').checked = !!audioState.loop;
+    $('audioVolume').value = audioState.volume;
+  }
+
+  function renderAudioTrack(t){
+    var el = document.createElement('div');
+    var isActive = audioState.playing && audioState.videoId === t.videoId;
+    el.className = 'audio-track-row' + (isActive ? ' active' : '');
+    el.innerHTML =
+      '<span class="audio-track-name">' + esc(t.name) + '</span>' +
+      '<button type="button" class="btn tiny" data-audio-play title="Odtwórz graczom">▶</button>' +
+      '<button type="button" class="btn tiny danger" data-audio-remove title="Usuń z biblioteki">🗑</button>';
+    el.querySelector('[data-audio-play]').addEventListener('click', function(){ playAudioTrack(t); });
+    el.querySelector('[data-audio-remove]').addEventListener('click', function(){
+      if(!confirm('Usunąć „' + t.name + '” z biblioteki?')) return;
+      audioLibrary = audioLibrary.filter(function(x){ return x.id !== t.id; });
+      render(); persist();
+    });
+    return el;
   }
 
   function renderCounters(){
@@ -1521,6 +1644,28 @@
   $('drawerActions').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
     drawerOpen.actions = !drawerOpen.actions; render(); persist();
   });
+  $('drawerAudio').querySelector('[data-drawer-toggle]').addEventListener('click', function(){
+    drawerOpen.audio = !drawerOpen.audio; render(); persist();
+  });
+  $('btnAudioAdd').addEventListener('click', function(){
+    var name = $('audioNewName').value.trim();
+    var url = $('audioNewUrl').value.trim();
+    var vid = parseYouTubeId(url);
+    if(!vid){ alert('Nie rozpoznano linku YouTube. Wklej pełny link (youtube.com/... lub youtu.be/...).'); return; }
+    if(!name) name = 'Utwór ' + (audioLibrary.length + 1);
+    audioLibrary.push({ id: audioLibrarySeq++, name: name, videoId: vid });
+    $('audioNewName').value = ''; $('audioNewUrl').value = '';
+    render(); persist();
+  });
+  $('btnAudioStop').addEventListener('click', stopAudioLive);
+  $('audioLoopToggle').addEventListener('change', function(e){
+    audioState.loop = e.target.checked;
+    render(); persist(); pushAudioLive();
+  });
+  $('audioVolume').addEventListener('input', function(e){
+    audioState.volume = Number(e.target.value);
+    persist(); pushAudioLive();
+  });
   $('btnAddCounter').addEventListener('click', function(){
     var name = prompt('Nazwa licznika:');
     if(!name || !name.trim()) return;
@@ -1561,7 +1706,7 @@
     sceneSeq = loaded.sceneSeq || (scenes.length+1);
     activeSceneId = (loaded.activeSceneId === undefined || loaded.activeSceneId === null) ? null : Number(loaded.activeSceneId);
     if(activeSceneId !== null && !findScene(activeSceneId)) activeSceneId = null;
-    drawerOpen = Object.assign({ adv:true, env:true, counters:true, actions:false }, loaded.drawerOpen || {});
+    drawerOpen = Object.assign({ adv:true, env:true, counters:true, actions:false, audio:false }, loaded.drawerOpen || {});
     scenePanelOpen = !!loaded.scenePanelOpen;
     groups.forEach(function(g){
       g.card = normalizeCard(g.card);
@@ -1582,6 +1727,18 @@
       ctr.value = clampCounterValue(ctr, ctr.value);
     });
     fearColors = normalizeFearColors(loaded.fearColors);
+    audioLibrary = Array.isArray(loaded.audioLibrary) ? loaded.audioLibrary.filter(function(t){
+      return t && typeof t.videoId === 'string' && /^[A-Za-z0-9_-]{11}$/.test(t.videoId);
+    }) : [];
+    audioLibrarySeq = loaded.audioLibrarySeq || (audioLibrary.length+1);
+    audioState = normalizeAudioState(loaded.audioState);
+  }
+
+  function normalizeAudioState(a){
+    var vid = (a && typeof a.videoId === 'string' && /^[A-Za-z0-9_-]{11}$/.test(a.videoId)) ? a.videoId : null;
+    var vol = (a && typeof a.volume === 'number' && a.volume >= 0 && a.volume <= 100) ? a.volume : 70;
+    var token = (a && typeof a.playToken === 'number') ? a.playToken : 0;
+    return { videoId: vid, playing: !!(a && a.playing) && !!vid, loop: !!(a && a.loop), volume: vol, playToken: token };
   }
 
   function normalizeFearColors(fc){
@@ -1599,7 +1756,8 @@
         groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear,
         scenes: scenes, sceneSeq: sceneSeq, activeSceneId: activeSceneId,
         drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen,
-        counters: counters, counterSeq: counterSeq, fearColors: fearColors
+        counters: counters, counterSeq: counterSeq, fearColors: fearColors,
+        audioLibrary: audioLibrary, audioLibrarySeq: audioLibrarySeq, audioState: audioState
       }));
     }catch(e){}
   }
@@ -1633,7 +1791,8 @@
       groupSeq: groupSeq, instSeq: instSeq, groups: groups, fear: fear,
       scenes: scenes, sceneSeq: sceneSeq, activeSceneId: activeSceneId,
       drawerOpen: drawerOpen, scenePanelOpen: scenePanelOpen,
-      counters: counters, counterSeq: counterSeq, fearColors: fearColors
+      counters: counters, counterSeq: counterSeq, fearColors: fearColors,
+      audioLibrary: audioLibrary, audioLibrarySeq: audioLibrarySeq, audioState: audioState
     };
     var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     var stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
