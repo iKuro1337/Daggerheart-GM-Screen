@@ -378,7 +378,7 @@
     -webkit-mask-size:100% 100%; mask-size:100% 100%;
     -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
     -webkit-mask-position:center top; mask-position:center top;
-    background:linear-gradient(165deg, var(--icon-color-a,#382d7a) 0%, var(--icon-color-b,#81cdc3) 100%);
+    background-color:var(--icon-idle-color,#382d7a);
     filter:drop-shadow(0 0 2px rgba(0,0,0,0.5));
     transition:background-color .35s ease;
   }
@@ -453,8 +453,9 @@
               </div>
               <div class="cp-section">
                 <h4>Ikona</h4>
-                <div class="cp-row"><span>Start gradientu</span><input type="color" id="cpIcon0"></div>
-                <div class="cp-row"><span>Koniec gradientu</span><input type="color" id="cpIcon1"></div>
+                <div class="cp-row"><span>Nieaktywny</span><input type="color" id="cpIconIdle"></div>
+                <div class="cp-row"><span>Aktywny — niski Fear</span><input type="color" id="cpIconLow"></div>
+                <div class="cp-row"><span>Aktywny — wysoki Fear</span><input type="color" id="cpIconHigh"></div>
               </div>
               <div class="cp-actions">
                 <button class="btn tiny" id="btnFearColorsReset">Domyślne</button>
@@ -1087,10 +1088,15 @@
     [188,80,120],   // rose
     [196,45,45]     // aggressive - red
   ];
-  var ICON_COLORS_DEFAULT = ['#382d7a', '#81cdc3'];
-  var fearColors = null; // {flame:[hex,hex,hex,hex], icon:[hex,hex]} once the GM customizes, else defaults
+  // Ikona ma własną 3-punktową skalę: kolor "nieaktywny" (niepodpalony token) oraz
+  // dwa kolory "aktywne" (podpalony token), pomiędzy którymi interpolujemy w miarę
+  // wzrostu Fear (activeLow @ Fear~0 -> activeHigh @ Fear=max) — analogicznie do
+  // płomienia, ale osobna skala kolorów.
+  var ICON_COLORS_DEFAULT = { idle:'#382d7a', activeLow:'#e0b355', activeHigh:'#81cdc3' };
+  var fearColors = null; // {flame:[hex,hex,hex,hex], icon:{idle,activeLow,activeHigh}} once the GM customizes, else defaults
 
   function rand(a,b){ return a + Math.random()*(b-a); }
+  function isHex(h){ return /^#?[0-9a-f]{6}$/i.test(h||''); }
   function hexToRgb(hex){
     var m = /^#?([0-9a-f]{6})$/i.exec(hex||'');
     if(!m) return [255,255,255];
@@ -1107,9 +1113,8 @@
     return FEAR_STOPS_DEFAULT;
   }
   function activeIconColors(){
-    if(fearColors && Array.isArray(fearColors.icon) && fearColors.icon.length === 2){
-      return fearColors.icon;
-    }
+    var c = fearColors && fearColors.icon;
+    if(c && isHex(c.idle) && isHex(c.activeLow) && isHex(c.activeHigh)) return c;
     return ICON_COLORS_DEFAULT;
   }
 
@@ -1123,48 +1128,6 @@
     var pos = Math.max(0, Math.min(1, t)) * n;
     var idx = Math.min(n - 1, Math.floor(pos));
     return lerpColorArr(stops[idx], stops[idx + 1], pos - idx);
-  }
-
-  // kolor logo kontrastujący z aktualnym kolorem płomienia — dopełnienie na kole barw
-  function rgbToHsl(r,g,b){
-    r/=255; g/=255; b/=255;
-    var max=Math.max(r,g,b), min=Math.min(r,g,b), h,s,l=(max+min)/2;
-    if(max===min){ h=s=0; }
-    else{
-      var d=max-min;
-      s = l>0.5 ? d/(2-max-min) : d/(max+min);
-      switch(max){
-        case r: h=(g-b)/d+(g<b?6:0); break;
-        case g: h=(b-r)/d+2; break;
-        default: h=(r-g)/d+4;
-      }
-      h/=6;
-    }
-    return [h,s,l];
-  }
-  function hslToRgb(h,s,l){
-    var r,g,b;
-    if(s===0){ r=g=b=l; }
-    else{
-      var hue2rgb = function(p,q,t){
-        if(t<0) t+=1; if(t>1) t-=1;
-        if(t<1/6) return p+(q-p)*6*t;
-        if(t<1/2) return q;
-        if(t<2/3) return p+(q-p)*(2/3-t)*6;
-        return p;
-      };
-      var q = l<0.5 ? l*(1+s) : l+s-l*s;
-      var p = 2*l-q;
-      r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3);
-    }
-    return [Math.round(r*255), Math.round(g*255), Math.round(b*255)];
-  }
-  function complementColor(rgb){
-    var hsl = rgbToHsl(rgb[0],rgb[1],rgb[2]);
-    var h = (hsl[0]+0.5)%1;
-    var s = Math.min(1, hsl[1]*1.1+0.15);
-    var l = Math.max(0.62, Math.min(0.82, 1-hsl[2]*0.55));
-    return hslToRgb(h,s,l);
   }
 
   // ---- kompaktowy silnik cząstek ognia (ten sam co w Fear_Live.html) ----
@@ -1304,13 +1267,12 @@
     var panel = $('fearPanel');
     var t = fear / FEAR_MAX;
     var col = colorForFear(t);
-    var contrastCol = complementColor(col);
     var iconCols = activeIconColors();
+    var activeIconRgb = lerpColorArr(hexToRgb(iconCols.activeLow), hexToRgb(iconCols.activeHigh), t);
     panel.style.setProperty('--fear-color', col.join(','));
-    panel.style.setProperty('--fear-contrast', contrastCol.join(','));
+    panel.style.setProperty('--fear-contrast', activeIconRgb.join(','));
     panel.style.setProperty('--flicker-amt', (0.32+t*0.4).toFixed(3));
-    panel.style.setProperty('--icon-color-a', iconCols[0]);
-    panel.style.setProperty('--icon-color-b', iconCols[1]);
+    panel.style.setProperty('--icon-idle-color', iconCols.idle);
   }
 
   function renderFear(){
@@ -1375,21 +1337,23 @@
   function syncColorPickerInputs(){
     var v = fearColorPickerValues();
     for(var i=0;i<4;i++) $('cpFlame'+i).value = v.flame[i];
-    $('cpIcon0').value = v.icon[0];
-    $('cpIcon1').value = v.icon[1];
+    $('cpIconIdle').value = v.icon.idle;
+    $('cpIconLow').value = v.icon.activeLow;
+    $('cpIconHigh').value = v.icon.activeHigh;
   }
   function onColorPickerChange(){
     fearColors = {
       flame: [0,1,2,3].map(function(i){ return $('cpFlame'+i).value; }),
-      icon: [$('cpIcon0').value, $('cpIcon1').value]
+      icon: { idle: $('cpIconIdle').value, activeLow: $('cpIconLow').value, activeHigh: $('cpIconHigh').value }
     };
     applyFearColorVars();
     pushFearColorsLive();
     persist();
   }
   [0,1,2,3].forEach(function(i){ $('cpFlame'+i).addEventListener('input', onColorPickerChange); });
-  $('cpIcon0').addEventListener('input', onColorPickerChange);
-  $('cpIcon1').addEventListener('input', onColorPickerChange);
+  $('cpIconIdle').addEventListener('input', onColorPickerChange);
+  $('cpIconLow').addEventListener('input', onColorPickerChange);
+  $('cpIconHigh').addEventListener('input', onColorPickerChange);
   $('btnFearColors').addEventListener('click', function(){
     syncColorPickerInputs();
     $('fearColorPopover').classList.toggle('open');
@@ -1622,10 +1586,11 @@
 
   function normalizeFearColors(fc){
     if(!fc || typeof fc !== 'object') return null;
-    var flame = Array.isArray(fc.flame) ? fc.flame.filter(function(h){ return hexToRgb(h); }) : [];
-    var icon = Array.isArray(fc.icon) ? fc.icon.filter(function(h){ return hexToRgb(h); }) : [];
-    if(flame.length !== 4 || icon.length !== 2) return null;
-    return { flame: flame, icon: icon };
+    var flame = Array.isArray(fc.flame) ? fc.flame.filter(isHex) : [];
+    var icon = fc.icon;
+    var iconOk = icon && typeof icon === 'object' && isHex(icon.idle) && isHex(icon.activeLow) && isHex(icon.activeHigh);
+    if(flame.length !== 4 || !iconOk) return null;
+    return { flame: flame, icon: { idle: icon.idle, activeLow: icon.activeLow, activeHigh: icon.activeHigh } };
   }
 
   function persist(){
