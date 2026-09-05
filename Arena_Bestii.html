@@ -303,9 +303,19 @@
   .gm-instances{display:flex; flex-direction:column; gap:10px; margin-bottom:8px;}
   .gm-instance{border:1px solid var(--line-soft); border-radius:8px; padding:8px 10px; background:var(--ink-2);}
   .gm-instance.defeated{opacity:0.5; border-color:var(--rust);}
-  .gm-instance-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .gm-instance-head{display:flex; align-items:center; gap:6px; margin-bottom:6px;}
   .gm-instance-label{font-size:0.72rem; font-weight:700; color:var(--text); letter-spacing:0.02em;}
   .gm-instance-label .dead-tag{color:var(--rust-bright); margin-left:6px; font-size:0.68rem;}
+  /* per-instance rename: looks like plain text until hovered/focused */
+  .gm-instance-name{
+    flex:1 1 auto; min-width:0; font-family:inherit; font-size:0.72rem; font-weight:700;
+    color:var(--text); letter-spacing:0.02em; background:transparent; border:1px solid transparent;
+    border-radius:5px; padding:2px 4px; margin:-2px -4px; cursor:text; text-overflow:ellipsis;
+  }
+  .gm-instance-name::placeholder{color:var(--text); opacity:0.75; font-weight:700;}
+  .gm-instance-name:hover{border-color:var(--line-soft);}
+  .gm-instance-name:focus{outline:none; border-color:var(--gold-bright); background:var(--card-bg);}
+  .gm-instance-head .dead-tag{color:var(--rust-bright); font-size:0.68rem; flex-shrink:0; white-space:nowrap;}
   .pip-track{display:flex; align-items:center; gap:7px; margin-bottom:5px;}
   .pip-track:last-child{margin-bottom:0;}
   .pip-track .lbl{font-size:0.6rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint); width:38px; flex-shrink:0;}
@@ -969,7 +979,7 @@
   }
 
   function addInstance(group){
-    group.instances.push({ id: instSeq++, hpMarked: 0, stressMarked: 0 });
+    group.instances.push({ id: instSeq++, hpMarked: 0, stressMarked: 0, name: '' });
   }
 
   function ingestCard(raw){
@@ -1178,8 +1188,11 @@
         var dead = inst.hpMarked >= c.hp && c.hp > 0;
         var row = document.createElement('div');
         row.className = 'gm-instance' + (dead ? ' defeated' : '');
+        var defaultLabel = 'Potwór #' + (idx+1);
         row.innerHTML =
-          '<div class="gm-instance-head"><span class="gm-instance-label">Potwór #' + (idx+1) + (dead ? '<span class="dead-tag">☠ pokonany</span>' : '') + '</span>'
+          '<div class="gm-instance-head">'
+          + '<input type="text" class="gm-instance-name" data-inst-rename value="' + esc(inst.name||'') + '" placeholder="' + esc(defaultLabel) + '" title="Kliknij, aby nazwać tę instancję (puste = ' + esc(defaultLabel) + ')">'
+          + (dead ? '<span class="dead-tag">☠ pokonany</span>' : '')
           + '<button class="btn tiny danger" data-remove-instance="' + inst.id + '">✕</button></div>'
           + '<div class="pip-track hp"><span class="lbl">HP</span><div class="pip-boxes" data-hp-pips="' + inst.id + '"></div></div>'
           + '<div class="pip-track stress"><span class="lbl">Stress</span><div class="pip-boxes" data-stress-pips="' + inst.id + '"></div></div>';
@@ -1196,6 +1209,18 @@
           if(!e.target.classList.contains('pip')) return;
           var i = Number(e.target.dataset.idx);
           inst.stressMarked = (i < inst.stressMarked) ? i : i + 1;
+          render(); persist();
+        });
+        var instNameInput = row.querySelector('[data-inst-rename]');
+        // stopPropagation so clicking the name never toggles the card's collapse state
+        instNameInput.addEventListener('click', function(e){ e.stopPropagation(); });
+        instNameInput.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){ e.preventDefault(); e.target.blur(); }
+          else if(e.key === 'Escape'){ e.target.value = inst.name || ''; e.target.blur(); }
+        });
+        // 'change' (not 'input') — render() rebuilds the DOM and would steal focus mid-typing
+        instNameInput.addEventListener('change', function(e){
+          inst.name = e.target.value.trim();
           render(); persist();
         });
         row.querySelector('[data-remove-instance]').addEventListener('click', function(){
@@ -1877,6 +1902,8 @@
     groups.forEach(function(g){
       g.card = normalizeCard(g.card);
       if(!Array.isArray(g.instances)) g.instances = [];
+      // old saves predate per-instance names
+      g.instances.forEach(function(inst){ if(typeof inst.name !== 'string') inst.name = ''; });
       g.sceneId = (g.sceneId === undefined || g.sceneId === null) ? null : Number(g.sceneId);
       if(g.sceneId !== null && !findScene(g.sceneId)) g.sceneId = null;
       if(typeof g.collapsed !== 'boolean') g.collapsed = true;
