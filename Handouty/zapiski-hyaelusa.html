@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<style>*{}html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Zapiski Hyaelusa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Caveat:wght@400;600&display=swap">
+<style>
+:root{
+  --stand:#BDB49B;
+  --paper:#E7E2D2;
+  --ink:#2B2419;
+  --ink-2:#4B4032;
+  --ink-3:#645B4C;
+  --halo:#7A6236;
+  --late:#3E4753;
+  --rule:#C6BDA5;
+  --wax:#7A3B2A;
+  --measure:39rem;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--stand);
+  background-image:
+    radial-gradient(120% 60% at 50% 0%, rgba(255,252,240,.18), transparent 70%),
+    radial-gradient(90% 50% at 50% 100%, rgba(40,30,16,.16), transparent 70%);
+  color:var(--ink);
+  font-family:Spectral,"Iowan Old Style",Georgia,serif;
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.sheet{
+  max-width:calc(var(--measure) + 12rem);
+  margin:0 auto;
+  padding:16px;
+  padding-block:clamp(24px,5vw,64px);
+}
+.leaf{
+  background:var(--paper);
+  background-image:
+    radial-gradient(38% 26% at 12% 9%, rgba(122,98,54,.075), transparent 70%),
+    radial-gradient(30% 20% at 88% 34%, rgba(122,98,54,.06), transparent 70%),
+    radial-gradient(44% 28% at 62% 78%, rgba(122,98,54,.055), transparent 70%),
+    radial-gradient(26% 18% at 24% 96%, rgba(90,70,40,.07), transparent 70%);
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 18px 44px rgba(38,28,14,.28);
+  padding:clamp(26px,6vw,66px) clamp(20px,5vw,62px) clamp(40px,7vw,80px);
+}
+
+/* ---- head ---- */
+.head{border-bottom:1px solid var(--rule);padding-bottom:1.6rem;margin-bottom:2.6rem}
+h1{
+  font-family:Cinzel,"Trajan Pro",Georgia,serif;
+  font-weight:600;
+  font-size:clamp(1.5rem,4.6vw,2.05rem);
+  letter-spacing:.14em;
+  line-height:1.2;
+  margin:0 0 .9rem;
+  text-wrap:balance;
+}
+.colophon{
+  font-size:.86rem;
+  font-style:italic;
+  font-weight:300;
+  color:var(--ink-3);
+  max-width:var(--measure);
+  margin:0;
+}
+
+/* ---- trial ---- */
+.trial{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.2rem 2.2rem;
+  padding-block:2.4rem;
+  border-top:1px solid var(--rule);
+  --c:var(--ink);
+}
+.trial:first-of-type{border-top:0;padding-top:.4rem}
+.e62{--c:var(--ink)}
+.e63{--c:#352C20}
+.e64{--c:#443A2C}
+.e65{--c:var(--ink-3)}
+.num{
+  font-family:Cinzel,Georgia,serif;
+  font-size:1.55rem;
+  letter-spacing:.06em;
+  color:var(--halo);
+  line-height:1;
+  margin:0 0 .35rem;
+}
+.when{
+  font-family:Cinzel,Georgia,serif;
+  font-size:.7rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin:0 0 1.15rem;
+}
+.body{max-width:var(--measure);color:var(--c)}
+.body p{margin:0 0 1.05rem}
+.body p:last-child{margin-bottom:0}
+
+/* ---- fields ---- */
+.fields{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:.32rem 1.1rem;
+  margin:0 0 1.35rem;
+  padding:0;
+}
+.fields dt{
+  font-family:Cinzel,Georgia,serif;
+  font-size:.66rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  padding-top:.34em;
+  white-space:nowrap;
+}
+.fields dd{margin:0;font-size:.97rem}
+
+/* ---- run-in labels ---- */
+.lab{font-style:italic;color:var(--halo)}
+.concl .lab{font-weight:600}
+.concl strong{font-weight:600}
+
+/* ---- later ink ---- */
+.margin{
+  border-left:2px solid var(--wax);
+  padding:.1rem 0 .1rem 1rem;
+  margin:1.5rem 0 0;
+  max-width:calc(var(--measure) - 2rem);
+}
+.margin .tag{
+  display:block;
+  font-family:Spectral,serif;
+  font-style:italic;
+  font-weight:300;
+  font-size:.78rem;
+  color:var(--ink-3);
+  margin-bottom:.3rem;
+}
+.margin p{
+  font-family:Caveat,"Segoe Script",cursive;
+  font-size:1.24rem;
+  line-height:1.42;
+  color:var(--late);
+  margin:0 0 .5rem;
+}
+.margin p:last-child{margin-bottom:0}
+
+.smudge{color:var(--ink-3);font-style:italic}
+.empty{font-style:italic;color:var(--ink-3)}
+
+.close{
+  margin-top:3rem;
+  padding-top:1.6rem;
+  border-top:1px solid var(--rule);
+  text-align:center;
+  font-family:Cinzel,Georgia,serif;
+  font-size:.66rem;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+@media (min-width:800px){
+  .trial{grid-template-columns:6.2rem 1fr}
+  .num{grid-column:1;grid-row:1;text-align:right;margin:0;padding-top:.1rem}
+  .when{grid-column:1;grid-row:2;text-align:right;margin:.45rem 0 0}
+  .body{grid-column:2;grid-row:1 / span 3}
+}
+@media print{
+  body{background:#fff}
+  .leaf{box-shadow:none;background:#fff}
+  .trial{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+<article class="leaf">
+
+<header class="head">
+  <h1>Zapiski z badań</h1>
+  <p class="colophon">Ręka elfia, atrament żelazowo&#8209;galusowy. Numeracja prób ciągła — liczone są próby, nie lata. Datowanie jak we wszystkich księgach warowni.</p>
+</header>
+
+<section class="trial e62">
+  <p class="num">Próba VII</p>
+  <p class="when">Rok 62 · wiosna</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Materiał</dt><dd>krew T., pobrana w pełni przemiany</dd>
+      <dt>Nośnik</dt><dd>srebro w zawiesinie</dd>
+    </dl>
+    <p><span class="lab">Wynik:</span> gwałtowna reakcja, oparzenia na przedramieniu, przebieg przemiany bez zmian.</p>
+    <p><span class="lab">Uwaga:</span> Nie udało się znaleźć nigdzie notatek z prób wyleczenia Likantropii. Zaczynam od rzeczy najgłupszych, żeby móc je wykreślić.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> srebro walczy tylko z objawem. Zbyt agresywnie, bez wpływu na proces przemiany.</p>
+  </div>
+</section>
+
+<section class="trial e62">
+  <p class="num">Próba XLI</p>
+  <p class="when">Rok 62 · lato</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Materiał</dt><dd>wyciąg własny, rozcieńczenie 1:400</dd>
+      <dt>Podanie</dt><dd>doustne, z posiłkiem</dd>
+    </dl>
+    <p><span class="lab">Wynik:</span> żaden. Przemiana pełna w standardowym odstępie czasowym.</p>
+    <p><span class="lab">Uwaga:</span> T. utrzymał świadomość przez pierwsze dwie minuty. To o minutę dłużej niż przy XL. Nie umiem powiedzieć, czy to zasługa preparatu, czy jego uporu.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> Podawanie doustnie jest zbyt niepewne. Klątwa ma podłoże magiczne. Cokolwiek ma zadziałać, musi wejść przez krew albo jako wyciąg stężony. Zwykłe jedzenie nic tu nie zmienia — ani nie leczy, ani nie zaraża (próby aXL–aXLI na szczurach).</p>
+  </div>
+</section>
+
+<section class="trial e62">
+  <p class="num">Próba LXXXVIII</p>
+  <p class="when">Rok 62 · jesień</p>
+  <div class="body">
+    <p>Odwrócenie założenia. Od wiosny próbowałem <em>usunąć</em> z niego zwierzę. Dziś próbowałem je <em>wyodrębnić</em>.</p>
+    <p><span class="lab">Wynik:</span> wyciąg czysty. Natura bestii, oddzielona, żywa, w słoju.</p>
+    <p><span class="lab">Uwaga:</span> przemiana przerwała się w połowie i trzymała jedenaście godzin. Leżał potem bez ruchu. Kiedy wstał, zapytał tylko, kiedy próbujemy następnym razem.</p>
+    <p>Następny cykl bez zmian. Wyciąg zadziałał tylko tymczasowo.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> Wyciąg podany na chwilę przed przemianą pozwala na odwrócenie cyklu przemiany dla tego cyklu. Przemiana w następnym cyklu odbywa się bez zmian. Jakby nigdy nie podano wyciągu.</p>
+  </div>
+</section>
+
+<section class="trial e62">
+  <p class="num">Próba XCVI</p>
+  <p class="when">Rok 62 · zima</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Materiał</dt><dd>wyciąg z LXXXVIII, dawka najmniejsza mierzalna</dd>
+      <dt>Ochotnik</dt><dd>ja</dd>
+    </dl>
+    <p><span class="lab">Wynik:</span> więź z ziemią. Czuję wodę pod kamieniem. Czuję jak śpią szczury. Wiem, gdzie kończy się korzeń drzewa.</p>
+    <p>To nie wygląda jak choroba, którą trzeba leczyć. To wygląda jak zdolność adaptacyjna. Może da się to przemienić, aby służyło człowiekowi, miast go skazywać na nędzny los.</p>
+    <p><em>Ustąpiło dziewiątego dnia.</em> Przy dawce tak małej klątwa nie ma się czego uchwycić — bierze tylko tyle, ile jej damy.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> <strong>Wszystko wskazuje na to, że dawka rozstrzyga o wszystkim.</strong> Poniżej progu — narzędzie. Powyżej — to, co ma T. Teraz trzeba odnaleźć odpowiednią dawkę i dawkowanie.</p>
+    <div class="margin">
+      <span class="tag">[dopisane później, innym atramentem]</span>
+      <p>nie umiałem tego wtedy docenić. dziewięć dni to było ostrzeżenie, a ja zapisałem je jako wynik</p>
+    </div>
+  </div>
+</section>
+
+<section class="trial e63">
+  <p class="num">Próba CIV</p>
+  <p class="when">Rok 63 · jesień</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Materiał</dt><dd>dostarczony</dd>
+      <dt>Przedmiot</dt><dd>Lanca. Trzy części, rozkładane — <em>trzpień</em>, <em>grot</em>, <em>rdzeń</em>. Rdzeń kulisty, w gnieździe wyściełanym.</dd>
+    </dl>
+    <p>Wspomniałem o niej raz, przelotnie, z tego, co wyczytałem: że Drakonidzi mają ją za świętość. Nie pytałem, jak ją zdobyto, i nie zamierzam pytać.</p>
+    <p>Przyłożony do skaleczenia — rana zamyka się w trzy oddechy. Przyłożony do klątwy pomniejszej — klątwa <em>ustępuje</em>. Nie cofa się, nie słabnie. Ustępuje. Testowane na <span class="smudge">… (ta informacja jest zamazana)</span></p>
+    <p class="concl"><span class="lab">Wniosek:</span> pierwsza rzecz, jaką widziałem, która eliminuje źródło, a nie tylko objawy.</p>
+  </div>
+</section>
+
+<section class="trial e63">
+  <p class="num">Próba CVI</p>
+  <p class="when">Rok 63 · jesień</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Materiał</dt><dd>rdzeń, kontakt bezpośredni</dd>
+      <dt>Podmiot</dt><dd>materiał żywy, dostarczony z dolnych kondygnacji. Czterej.</dd>
+    </dl>
+    <p><span class="lab">Wynik:</span> przy dwóch — klątwa nałożona i zdjęta w tej samej godzinie, bez śladu. Przy trzecim — zdjęta niecałkowicie. Czwarty nie przeżył nałożenia.</p>
+    <p><span class="lab">Uwaga:</span> nie odnotowuję imion, bo mi ich nie podano.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> rdzeń zdejmuje klątwę <strong>świeżą</strong> bez trudu. Ciężar próby rośnie z czasem, jaki klątwa miała na zapuszczenie korzeni. T. nosi ją najdłużej.</p>
+  </div>
+</section>
+
+<section class="trial e63">
+  <p class="num">Próba CVII</p>
+  <p class="when">Rok 63 · zima</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Materiał</dt><dd>rdzeń Lancy</dd>
+      <dt>Podmiot</dt><dd>T.</dd>
+    </dl>
+    <p><span class="lab">Wynik:</span> nic. Rdzeń rozgrzał się i zgasł.</p>
+    <p>Trzy dni liczyłem, zanim zrozumiałem, dlaczego. <em>Rdzeń nie tworzy mocy. Rdzeń ją przenosi.</em> Jest przewodem, nie źródłem. Musi mieć skąd wziąć.</p>
+    <p>Próba zakończyła się głęboką przemianą T. na 8 dni i 7 nocy.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> żeby zdjąć klątwę tak głęboką jak jego, trzeba więcej mocy, niż jest we mnie, w Lancy i w całej tej warowni razem wziętych. <strong>Potrzebny zbiornik. Albo czas.</strong></p>
+    <p>Zaczyna brakować czasu na eksperymenty. Padła decyzja o tymczasowym zawieszeniu prac.</p>
+  </div>
+</section>
+
+<section class="trial e64">
+  <p class="num">Próba CIX</p>
+  <p class="when">Rok 64 · wiosna</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Materiał</dt><dd>wywar pełny, sprawdzony trzykrotnie przed podaniem</dd>
+      <dt>Zaklęcie</dt><dd>wedle zapisu z CVII, bez odstępstw</dd>
+      <dt>Podmiot</dt><dd>T.</dd>
+    </dl>
+    <p><span class="lab">Wynik:</span> <strong>podmiot utracony.</strong> Pochłonięcie całkowite w niecałe pół godziny. Przemiana się nie cofa.</p>
+    <p><span class="lab">Uwaga:</span> wywar był czysty. Sprawdzałem go trzy razy i był czysty. Zaklęcie było poprawne. Nie umiem wskazać, co zawiodło, więc nie wskazuję.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> <span class="empty">— (rubryka pusta)</span></p>
+  </div>
+</section>
+
+<section class="trial e64">
+  <p class="num">Próba CXI</p>
+  <p class="when">Rok 64</p>
+  <div class="body">
+    <p>Przemiana T. nie cofnęła się do tej pory.</p>
+    <p>Na wyraźne rozkazy badania zmieniły swój cel.</p>
+    <p>Rdzeń zostaje zaadaptowany do nowych priorytetowych celów.</p>
+    <p>Zmodyfikowano runy na rdzeniu — jednorazowa aktywacja powoduje stałą cyrkulację, tak długo, jak źródło podaje energię.</p>
+    <p>Udało się dokonać przełomu w badaniach. Każda z bestii posiada w sobie cząstkę tej samej klątwy co T. Udało się wyizolować wspólny czynnik. Udało się zsynchronizować Rdzeń z Klątwą tak, aby wiązać nosiciela z nim na stałe, aktywnie promując cyrkulację energii pomiędzy wszystkimi nosicielami a rdzeniem.</p>
+    <p>Cecha ta wzmacnia się wraz ze wzrostem ilości nosicieli objętych Klątwą.</p>
+    <p>Eksperymenty wskazały synergię pomiędzy Rdzeniem a Klątwą — obiekty objęte Klątwą reagują na rdzeń i, oddalone, podążają w jego kierunku.</p>
+    <p>Sponsor wskazał optymalne miejsce na wdrożenie rozwiązania w skali światowej.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> W czasie eksperymentów wykazano, że rozmiar istoty objętej klątwą wpływa na dystans, w którym istota nią objęta zapada w letarg. Mniejsze istoty muszą znajdować się bliżej przynęty, niż większe.</p>
+    <p><span class="lab">Uwaga:</span> złożenie nie potrwa długo. Wszystko, czego trzeba, leży już na stole — zbierane na coś zupełnie innego.</p>
+  </div>
+</section>
+
+<section class="trial e64">
+  <p class="num">Próba CXIII</p>
+  <p class="when">Rok 64</p>
+  <div class="body">
+    <p><strong>Rytuał odprawiony.</strong></p>
+    <p><span class="lab">Wynik:</span> Przynęta trzyma. Wielkie Bestie schodzą się same. Weszły do jaskini pierwsze, przed czymkolwiek innym.</p>
+    <p><span class="lab">Uwaga:</span> Podczas aktywacji Przynęty w pełnej skali, Klątwa z próby, której podjąłem się w pierwszych eksperymentach aktywowała się ponownie.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> Klątwa raz nałożona nie schodzi przy użyciu normalnych metod.</p>
+    <p>działa. Chyba powinienem się cieszyć. Szkoda, że T. już tego nie zobaczy.</p>
+  </div>
+</section>
+
+<section class="trial e64">
+  <p class="num">Próba CXIV</p>
+  <p class="when">Rok 64</p>
+  <div class="body">
+    <p>Grot pozostały z demontażu Lancy został użyty do zapieczętowania/uspokojenia Lithosa. Szczątkowe ogniska magii na nim okazały się idealnym źródłem do tego celu.</p>
+    <p>Lithos okazał się wyjątkowo odporny na działanie Przynęty synergizującej z Klątwą. Konieczne było podjęcie dodatkowych kroków, aby zapewnić stabilność całego systemu.</p>
+    <p><span class="lab">Uwaga:</span> Nad miejscem osadzenia postawiono odpowiedni ołtarz. Bardziej inteligentnym z istot, które objęła klątwa (nazywają się Zakonem Rycerskim, o ironio), przedstawiono, że to relikwia, której mają strzec. Uwierzyli od razu. Tak jest bezpieczniej niż prawda, której nikt nie zapamięta na dłużej niż kilka pokoleń.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> <strong>dopóki grot tkwi — Lithos śpi.</strong> Usunięcie grotu obudzi go niezależnie od siły obiegu.</p>
+  </div>
+</section>
+
+<section class="trial e65">
+  <p class="num">Próba CXXII</p>
+  <p class="when">Rok 65</p>
+  <div class="body">
+    <dl class="fields">
+      <dt>Przedmiot</dt><dd>rdzeń</dd>
+      <dt>Charakter</dt><dd>rozważenia. Nie przeprowadzono eksperymentów</dd>
+    </dl>
+    <p>Miałem dużo czasu na rozważania. Potrzebowałem odwrócić swoją uwagę od oczywistości i skupić się na czymś praktycznym.</p>
+    <p>Wracam do tego od czterech miesięcy i widocznie nie przestanę, dopóki nie zobaczę tego na papierze. Papieru o dziwo mam tu dość. Czasu zresztą też.</p>
+    <p>W obecnej konfiguracji Rdzeń funkcjonuje jako przewód. Wykorzystuje się jego naturę, do utrzymywania istot objętych klątwą w ciągłym stanie pomiędzy sytością a głodem. Idealnie, aby czuły się zachęcane, aby dążyć w jego stronę.</p>
+    <p>Teoretycznie — sam to policzyłem, powinno się zgadzać — powinno dać się odwrócić działanie mechanizmu pętli: zamiast oddawać energię, powinno dać się ją otrzymywać.</p>
+    <p>Idąc dalej: Obieg pracuje wyłącznie w tandemie pomiędzy Klątwą a Rdzeniem. Zerwanie tej więzi spowoduje ulotnienie się cyrkulującej energii. Gwałtownie. Chyba.</p>
+    <p class="concl"><span class="lab">Wniosek:</span> Teoretyzując — nagła zmiana kierunku i/lub gradientu energii może spowodować zniszczenie Rdzenia i tym samym reakcję łańcuchową. Wyodrębniona esencja klątwy powinna pozwolić na opanowanie tej energii. Prawdopodobne jest, że konieczny będzie nowy katalizator bądź medium przez które energia będzie przepływać lub będzie gromadzona.</p>
+    <p><span class="lab">Uwaga:</span> policzyłem, ile by to było. Sprawdziłem to trzy razy i za trzecim razem przestałem, bo liczba przestała cokolwiek znaczyć. Skala energii o której mowa zmienia się eksponencjalnie ze wzrostem liczby i/lub siły istot objętych klątwą.</p>
+  </div>
+</section>
+
+<section class="trial e65">
+  <p class="num">Dopisek</p>
+  <p class="when">na marginesie CXXII · bez daty</p>
+  <div class="body">
+    <div class="margin" style="margin-top:0">
+      <p>mógłbym to zrobić. Siedzę w tych samych kajdanach, w których siedział T., i wiem, że to ja mógłbym tego dokonać. Może nawet cofnąć klątwę, która ciąży na T.</p>
+      <p>Teraz i tak nie uda się tego zrobić. Proces dopiero się rozpoczyna, a mnie zostało już niewiele siły, aby utrzymać świadomość.</p>
+    </div>
+    <div class="margin">
+      <span class="tag">Niżej, jeszcze innym atramentem:</span>
+      <p>zostawiam obliczenia. gdyby przyszedł ktoś przeklęty tak jak ja i wystarczająco głupi, niech przynajmniej wie, na co się godzi.</p>
+    </div>
+  </div>
+</section>
+
+<p class="close">Koniec zapisu</p>
+
+</article>
+</div>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<style>*{}html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Listy do Miłej</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400;1,500&family=Kalam:wght@300&family=Patrick+Hand&display=swap">
+<style>
+:root{
+  --room:#2F2A25;
+  --wet-paper:#C8C0A5;
+  --wet-ink:#4C5530;
+  --iii-paper:#D8D0BA;
+  --iii-ink:#2F2A22;
+  --ii-paper:#E0D9C6;
+  --ii-ink:#25201A;
+  --i-paper:#EDE7D4;
+  --i-ink:#221C16;
+  --faint:#7C7261;
+  --courier:#6A5136;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--room);
+  background-image:
+    radial-gradient(120% 55% at 50% -8%, rgba(226,205,160,.13), transparent 66%),
+    radial-gradient(90% 60% at 50% 108%, rgba(0,0,0,.45), transparent 70%);
+  color:#E3DAC7;
+  font-family:"Cormorant Garamond",Garamond,Georgia,serif;
+  font-size:17px;
+  line-height:1.6;
+}
+.room{max-width:44rem;margin:0 auto;padding:16px;padding-block:clamp(26px,6vw,64px)}
+
+.intro{max-width:30rem;margin:0 auto clamp(28px,6vw,54px);text-align:center}
+.intro h1{
+  font-weight:600;
+  font-size:clamp(1.6rem,5vw,2.2rem);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  margin:0 0 .7rem;
+  color:#E8DFCB;
+  text-wrap:balance;
+}
+.intro p{
+  font-style:italic;
+  font-size:.95rem;
+  color:#B7AB93;
+  margin:0;
+}
+
+/* ---------- a leaf ---------- */
+.leaf{
+  width:var(--w,100%);
+  max-width:100%;
+  margin:0 auto clamp(22px,4.6vw,40px);
+  padding:clamp(20px,4.4vw,34px) clamp(18px,4.4vw,34px);
+  transform:rotate(var(--r,0deg));
+  box-shadow:0 12px 30px rgba(8,5,2,.44);
+}
+.leaf p{margin:0 0 .95rem}
+.leaf p:last-child{margin-bottom:0}
+.sig{text-align:right;font-style:italic}
+
+/* ---------- top of the stack: still wet ---------- */
+.wet{
+  --w:26rem;
+  background:var(--wet-paper);
+  background-image:
+    radial-gradient(30% 34% at 22% 26%, rgba(76,85,48,.18), transparent 72%),
+    radial-gradient(26% 28% at 76% 66%, rgba(76,85,48,.15), transparent 72%),
+    radial-gradient(40% 30% at 50% 100%, rgba(60,52,24,.16), transparent 74%);
+  font-family:"Patrick Hand","Segoe Print",cursive;
+  font-size:1.16rem;
+  line-height:1.62;
+  color:var(--wet-ink);
+  text-shadow:0 0 1px rgba(76,85,48,.5), .6px .7px 2px rgba(52,60,28,.4);
+}
+.wet .to{font-size:1.05rem;opacity:.85;margin-bottom:1.1rem}
+.fresh{
+  display:block;
+  text-align:center;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;
+  font-size:.9rem;
+  color:#A89B82;
+  margin:0 auto .8rem;
+  max-width:26rem;
+}
+
+/* ---------- third layer: it erodes ---------- */
+.iii{
+  --w:29rem;
+  background:var(--iii-paper);
+  background-image:
+    radial-gradient(34% 26% at 82% 18%, rgba(120,96,54,.09), transparent 72%),
+    radial-gradient(30% 22% at 18% 78%, rgba(120,96,54,.08), transparent 72%);
+  font-style:italic;
+  font-weight:400;
+  font-size:1.26rem;
+  line-height:1.55;
+  color:var(--iii-ink);
+}
+.iii s{color:#7E7462;text-decoration-thickness:1px;margin-right:.2em}
+.iii strong{font-weight:600;font-style:italic}
+
+/* ---------- second layer: slid under a door ---------- */
+.ii{
+  --w:24rem;
+  background:var(--ii-paper);
+  background-image:radial-gradient(36% 30% at 72% 84%, rgba(110,88,50,.075), transparent 74%);
+  font-style:italic;
+  font-weight:500;
+  font-size:1.3rem;
+  line-height:1.5;
+  color:var(--ii-ink);
+}
+.ii em{font-style:italic;font-weight:600}
+
+/* ---------- bottom of the stack: from the campaign ---------- */
+.i{
+  --w:33rem;
+  background:var(--i-paper);
+  background-image:radial-gradient(40% 28% at 26% 88%, rgba(120,98,58,.07), transparent 74%);
+  font-style:italic;
+  font-weight:400;
+  font-size:1.28rem;
+  line-height:1.58;
+  color:var(--i-ink);
+  padding-block:clamp(26px,5vw,42px);
+}
+.i .address{
+  font-style:normal;
+  font-weight:600;
+  font-size:.82rem;
+  letter-spacing:.19em;
+  text-transform:uppercase;
+  color:#4B3F31;
+  margin-bottom:1.4rem;
+  line-height:1.5;
+}
+.reverse{
+  margin-top:1.9rem;
+  padding:.85rem 1rem;
+  border:1px solid rgba(106,81,54,.5);
+  transform:rotate(-.7deg);
+}
+.reverse .tag{
+  display:block;
+  font-style:italic;
+  font-size:.78rem;
+  color:var(--faint);
+  margin-bottom:.4rem;
+}
+.reverse .stamp{
+  font-family:Kalam,"Segoe Script",cursive;
+  font-weight:300;
+  font-style:normal;
+  font-size:.95rem;
+  line-height:1.4;
+  color:var(--courier);
+  margin:0;
+}
+
+@media (max-width:520px){
+  .leaf{transform:none}
+  .wet,.iii,.ii,.i{font-size:1.12rem}
+}
+@media (prefers-reduced-motion:reduce){.leaf{transition:none}}
+@media print{
+  body{background:#fff;color:#000}
+  .intro h1,.intro p{color:#000}
+  .leaf{box-shadow:none;transform:none;break-inside:avoid;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+<div class="room">
+
+<header class="intro">
+  <h1>Listy do Miłej</h1>
+  <p>Setki, ułożone warstwami. Najstarsze na spodzie. Kałamarz wysechł wieki temu; obok leży świeże pióro i miska z grzybnią zamiast atramentu.</p>
+</header>
+
+<span class="fresh">Na samym wierzchu, jeszcze wilgotne</span>
+
+<article class="leaf wet" style="--r:-.6deg">
+  <p class="to">do miłej</p>
+  <p>dzisiaj było fajnie. zupa wyszła. pokoik posprzątany.</p>
+  <p>przyszli goście. czterech. jeden kiedyś coś mi upichcił. Dobre było. Trzeba było doprawić</p>
+  <p>tęsknię, chyba.</p>
+</article>
+
+<article class="leaf wet" style="--r:.5deg;--w:19rem">
+  <p>pokoik posprzątany.</p>
+</article>
+
+<article class="leaf wet" style="--r:-.35deg;--w:22rem">
+  <p class="to">do miłej</p>
+  <p>pokoik posprzątany<br>zupa wyszła<br>tęsknię</p>
+</article>
+
+<article class="leaf iii" style="--r:.45deg">
+  <p><s>Jag</s> Mała pytała dziś o Ciebie. To znaczy pytałaby.</p>
+  <p>Nie ma jej tu. Pokoik posprzątany.</p>
+</article>
+
+<article class="leaf iii" style="--r:-.5deg;--w:26rem">
+  <p>Miałaś włosy jak…? Nie. To chyba ktoś inny.</p>
+  <p>Zostawiam puste. Uzupełnię, jak wróci.</p>
+</article>
+
+<article class="leaf iii" style="--r:.3deg">
+  <p><strong>Do <s>Miłosł</s> <s>Miłosa</s> Miłej,</strong></p>
+  <p>Dzisiaj przypomniałem sobie, jak się śmiałaś. Nie pamiętam, z czego.</p>
+  <p>Zapisuję, zanim ucieknie.</p>
+</article>
+
+<article class="leaf iii" style="--r:-.4deg;--w:31rem">
+  <p>Przyszła dziś kobieta. Nie opiszę Ci jej, bo Ci się nie spodoba, a i tak nie o to chodzi.</p>
+  <p>Powiedziała, że umie oddać. <em>Obie.</em> Że to wyłącznie kwestia ceny i cierpliwości.</p>
+  <p>Zapytałem, czy to prawda. Zapewniła, że tak.</p>
+  <p><strong>Ona chyba nie oszukuje, mówi, że to będzie mój wybór</strong></p>
+  <p>Chyba powiem tak.</p>
+</article>
+
+<article class="leaf ii" style="--r:.5deg">
+  <p>Nie odpisujesz. Dobrze.</p>
+  <p>Będę pisał dalej. Jak chcesz, to je pal — byleś je najpierw przeczytała.</p>
+</article>
+
+<article class="leaf ii" style="--r:-.45deg;--w:26rem">
+  <p>Leży w kaplicy szósty tydzień.</p>
+  <p>Nie oddam jej ziemi sam. Nie proszę Cię o wiele — wstań, przyjdź ze mną, pochowamy ją razem i wrócisz sobie za te drzwi.</p>
+  <p>A jak nie wstaniesz, to będę czekał. Mam czas.</p>
+</article>
+
+<article class="leaf ii" style="--r:.35deg">
+  <p>Byłem sześć dni za późno.</p>
+  <p>Wiem, że o tym nie mówisz, i wiem dlaczego. Ale powiedz mi to raz — wtedy będę przynajmniej wiedział, ile mam odrobić.</p>
+  <p class="sig">P.</p>
+</article>
+
+<article class="leaf ii" style="--r:-.3deg;--w:26rem">
+  <p>Widziałem dziś listę. Twoja pozycja jest wykreślona Twoją ręką, trzeci tydzień z rzędu.</p>
+  <p>Wiem, co robisz. Nie umiem tego nazwać na głos, więc piszę.</p>
+  <p><em>Zjedz.</em> <em>Proszę.</em></p>
+</article>
+
+<article class="leaf ii" style="--r:.4deg;--w:22rem">
+  <p>Miła.</p>
+  <p>Nie będę dobijał się drugi raz. Zostawiam pod drzwiami.</p>
+  <p>Zjedz to. Nie proszę jako król.</p>
+</article>
+
+<article class="leaf i" style="--r:-.35deg">
+  <p class="address">Miła,</p>
+  <p>Zwijamy obóz. Dwanaście dni drogi, może czternaście, jeżeli przełęcz stoi.</p>
+  <p>Powiedz Jagódce, żeby nie wychodziła mi naprzeciw na mróz, bo się przeziębi czekając.</p>
+  <p>Wiozę jej to, co obiecałem. Jest mniejsze, niż jej opowiadałem ale i tak się spodoba.</p>
+  <p class="sig">P.</p>
+  <div class="reverse">
+    <span class="tag">na odwrocie, obcą ręką</span>
+    <p class="stamp">list zatrzymany w Głaziszczu — droga zamknięta — odesłany nadawcy</p>
+  </div>
+</article>
+
+<article class="leaf i" style="--r:.3deg">
+  <p class="address">Do Najjaśniejszej Pani Miłosławy</p>
+  <p>Miła,</p>
+  <p>Wschodni brzeg wzięty, straty mniejsze, niż liczyłem. Bokwina twierdzi, że kuźnia nie nadąża, i będzie tak twierdził do śmierci, więc nie przejmuj się.</p>
+  <p>Napisz mi, jak tam zima. W każdym liście piszesz „radzimy sobie" i w każdym brzmi to identycznie, więc już nie wiem, czy to prawda, czy nawyk.</p>
+  <p>Ucałuj Jagódkę. Powiedz jej, że wracam przed roztopami — i że pamiętam, co obiecałem.</p>
+  <p class="sig">Pęcław</p>
+</article>
+
+</div>
+</body>
+</html>

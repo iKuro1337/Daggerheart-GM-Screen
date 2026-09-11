@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<style>*{}html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Dziennik racjonowania</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400&family=Spectral:ital,wght@0,300;0,400;0,600;1,300&display=swap">
+<style>
+:root{
+  --soot:#3C382F;
+  --paper:#E2E4D7;
+  --rule:#B6BDAB;
+  --vert:#A8B3C1;
+  --ink:#33302B;
+  --struck:#7B7769;
+  --clerk:#1B1C19;
+  --faint:#6C6A5E;
+  --red:#8A3A2C;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--soot);
+  background-image:radial-gradient(100% 60% at 50% 0%, rgba(255,230,190,.10), transparent 70%);
+  color:var(--ink);
+  font-family:Spectral,"Iowan Old Style",Georgia,serif;
+  font-size:16px;
+  line-height:1.6;
+}
+.desk{max-width:58rem;margin:0 auto;padding:16px;padding-block:clamp(22px,5vw,56px)}
+.leaf{
+  position:relative;
+  background:var(--paper);
+  box-shadow:0 18px 44px rgba(12,10,4,.45);
+  padding:clamp(26px,5vw,48px) clamp(18px,4vw,44px) clamp(34px,6vw,58px);
+  overflow:hidden;
+}
+/* hung by the hearth — the top edge took the smoke */
+.leaf::before{
+  content:"";position:absolute;inset:0 0 auto 0;height:9rem;pointer-events:none;
+  background:linear-gradient(to bottom, rgba(54,42,26,.26), rgba(54,42,26,.08) 46%, transparent 100%);
+}
+.leaf > *{position:relative}
+
+h1{
+  font-family:Spectral,Georgia,serif;
+  font-weight:600;
+  font-size:clamp(1.15rem,3.4vw,1.4rem);
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  line-height:1.35;
+  margin:0 0 .55rem;
+  text-wrap:balance;
+}
+.colophon{
+  font-size:.84rem;font-style:italic;font-weight:300;color:var(--faint);
+  margin:0 0 1.6rem;max-width:34rem;
+}
+.dbl{border:0;border-top:2px solid var(--red);border-bottom:1px solid var(--red);height:3px;margin:0 0 1.8rem}
+
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.4rem}
+table{border-collapse:collapse;width:100%;min-width:44rem;font-variant-numeric:tabular-nums lining-nums}
+caption{caption-side:bottom;text-align:left;font-size:.78rem;font-style:italic;color:var(--faint);padding-top:1rem}
+th{
+  font-family:Spectral,Georgia,serif;
+  font-weight:400;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--faint);
+  text-align:right;vertical-align:bottom;
+  padding:0 .8rem .55rem;
+  border-bottom:1px solid var(--rule);
+  white-space:nowrap;
+}
+th:first-child{text-align:right;padding-left:0}
+th:last-child{text-align:left;width:42%;padding-right:0}
+td{
+  padding:.62rem .8rem;
+  border-bottom:1px solid var(--rule);
+  text-align:right;
+  vertical-align:top;
+  border-right:1px solid rgba(168,179,193,.42);
+}
+td:first-child{padding-left:0}
+td:last-child{border-right:0;padding-right:0;text-align:left}
+.day{font-weight:600}
+s{color:var(--struck);text-decoration-thickness:1px;margin-right:.28em}
+.note{
+  font-family:Kalam,"Segoe Script",cursive;
+  font-weight:300;
+  font-size:1.02rem;
+  line-height:1.45;
+  color:var(--ink);
+  max-width:24rem;
+}
+/* od karty sześćdziesiątej ósmej ręka jest inna */
+tr.clerk td{color:var(--clerk)}
+tr.clerk .note{
+  font-family:Spectral,Georgia,serif;
+  font-weight:400;
+  font-size:.72rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--clerk);
+}
+tr.clerk .none{color:var(--faint);letter-spacing:0}
+@media (max-width:560px){
+  table{min-width:40rem}
+  .note{font-size:.95rem}
+}
+@media print{
+  body{background:#fff}
+  .leaf{box-shadow:none;background:#fff}
+  .leaf::before{display:none}
+}
+</style>
+</head>
+<body>
+<div class="desk">
+<article class="leaf">
+
+<h1>Warownia · przydział żywności · oblężenie</h1>
+<p class="colophon">Zbutwiały plik kart, zdjęty z kołka. Staranne pismo kobiece. Liczby w porcjach dziennych.</p>
+<hr class="dbl">
+
+<div class="scroller">
+<table>
+  <caption>Karty zachowane. Między zachowanymi kartami są luki — brakujących nie odnaleziono.</caption>
+  <thead>
+    <tr>
+      <th scope="col">Dzień</th>
+      <th scope="col">Kuźnia</th>
+      <th scope="col">Mur wsch.</th>
+      <th scope="col">Szpital</th>
+      <th scope="col">Kuchnia</th>
+      <th scope="col">Rodzina królewska</th>
+      <th scope="col">Uwagi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="day">1</td><td>12</td><td>18</td><td>6</td><td>5</td><td>3</td>
+      <td><span class="note">Upewnić się że Ci co pilnują ognia, dostają pełną porcję.</span></td>
+    </tr>
+    <tr>
+      <td class="day">12</td><td>11</td><td>16</td><td>8</td><td>5</td><td>3</td>
+      <td><span class="note">Dziecko Elary jeszcze nie je chleba. Podać rozrobione z mlekiem.</span></td>
+    </tr>
+    <tr>
+      <td class="day">28</td><td>9</td><td>14</td><td>8</td><td>4</td><td>3</td>
+      <td><span class="note">Upilnować porcjowania</span></td>
+    </tr>
+    <tr>
+      <td class="day">34</td><td>8</td><td><s>13</s>14</td><td>11</td><td>4</td><td><s>3</s>2</td>
+      <td><span class="note">Mała jest chora i nie chce jeść, oddano jej porcję strażnikom.</span></td>
+    </tr>
+    <tr>
+      <td class="day">41</td><td><s>7</s>8</td><td><s>12</s>13</td><td>14</td><td>3</td><td><s>3</s>2</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="day">47</td><td>6</td><td><s>11</s>12</td><td>14</td><td>3</td><td><s>2</s>1</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="day">52</td><td>5</td><td><s>9</s>10</td><td>17</td><td>3</td><td><s>2</s>1</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="day">61</td><td>5</td><td>7</td><td>21</td><td>2</td><td>2</td>
+      <td></td>
+    </tr>
+    <tr class="clerk">
+      <td class="day">68</td><td>4</td><td>7</td><td>19</td><td>2</td><td>1</td>
+      <td><span class="note">Spisano wedle polecenia</span></td>
+    </tr>
+    <tr class="clerk">
+      <td class="day">75</td><td>4</td><td>6</td><td>16</td><td>2</td><td>1</td>
+      <td><span class="note none">—</span></td>
+    </tr>
+    <tr class="clerk">
+      <td class="day">82</td><td>3</td><td>6</td><td>12</td><td>2</td><td>1</td>
+      <td><span class="note none">—</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</article>
+</div>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<style>*{}html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Kartka z baraków</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Patrick+Hand&display=swap">
+<style>
+:root{
+  --room:#37302A;
+  --paper:#D6C9AB;
+  --ink:#4E3E2C;
+  --ink-2:#665540;
+  --faint:#8E8065;
+  --back-paper:#C6B899;
+  --back-ink:#3B3A30;
+  --corner:212px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--room);
+  background-image:
+    radial-gradient(110% 50% at 50% 0%, rgba(240,214,168,.10), transparent 68%),
+    radial-gradient(80% 60% at 50% 105%, rgba(0,0,0,.42), transparent 72%);
+  color:#DCD0B6;
+  font-family:"Cormorant Garamond",Garamond,Georgia,serif;
+  font-size:17px;
+  line-height:1.6;
+}
+.bunk{max-width:40rem;margin:0 auto;padding:16px;padding-block:clamp(24px,6vw,60px)}
+
+.intro{max-width:27rem;margin:0 auto clamp(24px,5vw,44px);text-align:center}
+.intro h1{
+  font-weight:500;
+  font-size:clamp(1.45rem,4.6vw,1.95rem);
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  margin:0 0 .65rem;
+  color:#E2D7BE;
+  text-wrap:balance;
+}
+.intro p{font-style:italic;font-size:.94rem;color:#AA9E85;margin:0}
+
+.wrap{filter:drop-shadow(0 14px 28px rgba(6,4,1,.55))}
+.leaf{
+  background:var(--paper);
+  background-image:
+    radial-gradient(26% 18% at 16% 14%, rgba(122,92,44,.16), transparent 70%),
+    radial-gradient(22% 15% at 84% 28%, rgba(122,92,44,.14), transparent 70%),
+    radial-gradient(30% 20% at 40% 58%, rgba(122,92,44,.12), transparent 72%),
+    radial-gradient(24% 16% at 74% 82%, rgba(96,72,34,.16), transparent 70%),
+    radial-gradient(18% 12% at 8% 74%, rgba(96,72,34,.15), transparent 70%);
+  color:var(--ink);
+  font-family:"Patrick Hand","Segoe Print",cursive;
+  font-size:1.2rem;
+  line-height:1.72;
+  padding:clamp(22px,5vw,40px) clamp(20px,5vw,42px) clamp(26px,5vw,44px);
+}
+.leaf p{margin:0 0 1.05rem;max-width:30rem}
+.leaf p:last-child{margin-bottom:0}
+.sig{text-align:right;font-style:normal;color:var(--ink-2)}
+
+/* the broken top corner — the name went with it */
+.leaf-a{
+  padding-top:calc(var(--corner) * .46);
+  clip-path:polygon(
+    0 96px, 22px 74px, 48px 52px, 84px 32px, 126px 16px, 172px 6px, var(--corner) 0,
+    100% 0,
+    100% calc(100% - 6px), 92% calc(100% - 1px), 84% calc(100% - 9px), 75% calc(100% - 3px),
+    66% calc(100% - 11px), 57% calc(100% - 4px), 48% calc(100% - 12px), 39% calc(100% - 5px),
+    30% calc(100% - 13px), 21% calc(100% - 6px), 12% calc(100% - 14px), 5% calc(100% - 7px),
+    0 calc(100% - 12px)
+  );
+}
+.salut{margin-left:1.4rem}
+
+/* a strip of the page is simply gone */
+.gap{
+  background:var(--room);
+  height:3.4rem;
+  margin:1.4rem -1px;
+  clip-path:polygon(
+    0 8px, 8% 2px, 17% 10px, 26% 3px, 35% 11px, 45% 4px, 54% 12px, 63% 5px,
+    72% 11px, 81% 3px, 90% 9px, 100% 2px,
+    100% calc(100% - 7px), 91% calc(100% - 1px), 82% calc(100% - 10px), 72% calc(100% - 3px),
+    63% calc(100% - 11px), 53% calc(100% - 4px), 44% calc(100% - 12px), 34% calc(100% - 5px),
+    25% calc(100% - 10px), 15% calc(100% - 2px), 6% calc(100% - 9px), 0 calc(100% - 3px)
+  );
+}
+.gap-note{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;
+  font-size:.88rem;
+  color:var(--faint);
+  margin:0 0 1.4rem;
+}
+
+.detached{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;
+  font-size:.88rem;
+  color:#9A8E76;
+  text-align:center;
+  margin:1.1rem auto 1.1rem;
+  max-width:26rem;
+}
+
+/* the loose lower third */
+.leaf-b{
+  clip-path:polygon(
+    0 12px, 5% 7px, 12% 14px, 21% 6px, 30% 13px, 39% 5px, 48% 12px, 57% 4px,
+    66% 11px, 75% 3px, 84% 9px, 92% 1px, 100% 6px,
+    100% 100%, 0 100%
+  );
+  padding-top:2.6rem;
+}
+
+/* the reverse */
+.back{
+  background:var(--back-paper);
+  background-image:radial-gradient(34% 24% at 70% 30%, rgba(90,70,36,.16), transparent 72%);
+  color:var(--back-ink);
+  font-family:"Patrick Hand","Segoe Print",cursive;
+  font-size:1.02rem;
+  line-height:1.6;
+  padding:clamp(18px,4vw,26px) clamp(18px,4vw,28px);
+  max-width:22rem;
+  margin:0 auto;
+  transform:rotate(-.8deg);
+}
+.back p{margin:0}
+
+@media (max-width:560px){
+  :root{--corner:128px}
+  .leaf{font-size:1.1rem}
+  .leaf-a{clip-path:polygon(
+    0 58px, 14px 45px, 30px 32px, 52px 20px, 78px 10px, 106px 4px, var(--corner) 0,
+    100% 0,
+    100% calc(100% - 5px), 88% calc(100% - 1px), 76% calc(100% - 8px), 62% calc(100% - 3px),
+    50% calc(100% - 9px), 37% calc(100% - 3px), 24% calc(100% - 9px), 12% calc(100% - 2px),
+    0 calc(100% - 8px)
+  )}
+  .salut{margin-left:.5rem}
+  .back{transform:none}
+}
+@media print{
+  body{background:#fff;color:#000}
+  .intro h1,.intro p{color:#000}
+  .wrap{filter:none}
+  .leaf-a,.leaf-b{clip-path:none}
+  .gap{background:#eee}
+}
+</style>
+</head>
+<body>
+<div class="bunk">
+
+<header class="intro">
+  <h1>Kartka z baraków</h1>
+  <p>Papier tani, stary. Pęka przy każdym dotknięciu i sypie się w palcach. Górny róg odłamany.</p>
+</header>
+
+<div class="wrap">
+<article class="leaf leaf-a">
+
+  <p class="salut">…tku,</p>
+
+  <p>Nie gniewaj się, że krótko. Kucharka mnie goni, a ja i tak piszę.</p>
+
+  <p>Widziałam Cię wczoraj z góry, jak schodziłeś z muru. Machałam. Nie widziałeś, bo patrzyłeś pod nogi, jak zawsze. Patrz przed siebie, człowieku, bo się kiedyś na tych schodach zabijesz i będzie mi wstyd na pogrzebie.</p>
+
+  <p>Schowałam Ci coś. Nie pytaj co i nie pytaj skąd. Leży u pod ławą przy schodach na mur. <strong>Zjedz to sam.</strong> Sam, słyszysz. Nie dziel się z Bartkiem, bo znam Cię, a on i tak zawsze wygląda na głodniejszego niż jest.</p>
+
+  <div class="gap"></div>
+  <p class="gap-note">[tu brakuje kawałka — kartka wyszczerbiona wzdłuż zagięcia]</p>
+
+  <p>…a stary Grzela znowu klął na kolano i mówił, że jak wróci pogoda, to mu przejdzie. Powiedziałam mu, że jak wróci pogoda, to my wszyscy będziemy inni ludzie. Śmiał się.</p>
+
+  <p>I jeszcze to. Ta piosenka. Ta, co ją nocą śpiewają u góry tej małej. Słychać przez komin aż do nas i cały barak ją teraz nuci, nawet Grzela. Tak. Jak potrzeba, to twierdzi że niedosłyszy, a tą piosenkę to jakimś cudem usłyszał. Wczoraj sama złapałam się, że nucę ją nad garami, i nie wiem, od kiedy.</p>
+
+  <p>Szkoda tej małej, szkoda Pani.</p>
+
+</article>
+</div>
+
+<p class="detached">[dolna trzecia część odpada przy przenoszeniu]</p>
+
+<div class="wrap">
+<article class="leaf leaf-b">
+  <p>Jak to się skończy, pójdziemy nad wodę. Mówiłeś, że nie umiesz pływać. Nauczę Cię. Będziesz się bał, ja będę się śmiała, Ty będziesz się gniewał, że się śmieję — a potem i tak wejdziesz, bo zawsze wchodzisz.</p>
+  <p>Tylko wróć mi cały z tego muru.</p>
+  <p class="sig">Twoja Hanka</p>
+</article>
+</div>
+
+<p class="detached">na odwrocie, innym piórem, gorszym</p>
+
+<div class="wrap">
+<article class="back">
+  <p>mniej dzisiaj wydali. nie martw się. mam swoje.</p>
+</article>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<style>*{}html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Pamiętnik Hyaelusa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Caveat:wght@400;600&display=swap">
+<style>
+:root{
+  --desk:#4A4034;
+  --paper:#E0D6BF;
+  --gutter:#CDC0A4;
+  --ink:#33323A;
+  --ink-2:#55535A;
+  --ink-3:#6C6961;
+  --thread:#7A3226;
+  --rust:#6E3B2C;
+  --rule:#C3B79C;
+  --measure:33rem;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--desk);
+  background-image:
+    radial-gradient(110% 70% at 50% 0%, rgba(255,240,210,.10), transparent 68%),
+    radial-gradient(80% 60% at 50% 100%, rgba(0,0,0,.30), transparent 70%);
+  color:var(--ink);
+  font-family:Spectral,"Iowan Old Style",Georgia,serif;
+  font-size:17px;
+  line-height:1.7;
+}
+.desk{
+  max-width:46rem;
+  margin:0 auto;
+  padding:16px;
+  padding-block:clamp(22px,5vw,58px);
+}
+.volume{
+  position:relative;
+  background:var(--paper);
+  background-image:
+    linear-gradient(90deg, var(--gutter) 0, rgba(205,192,164,0) 4.6rem),
+    radial-gradient(34% 22% at 82% 14%, rgba(120,92,50,.09), transparent 70%),
+    radial-gradient(40% 26% at 18% 62%, rgba(120,92,50,.075), transparent 70%),
+    radial-gradient(30% 20% at 70% 92%, rgba(90,68,36,.08), transparent 70%);
+  box-shadow:0 20px 48px rgba(20,14,6,.42), 0 1px 0 rgba(255,255,255,.28) inset;
+  padding:clamp(26px,6vw,58px) clamp(20px,5vw,48px) clamp(38px,7vw,70px) clamp(20px,5vw,48px);
+}
+/* binding thread */
+.volume::before{
+  content:"";
+  position:absolute;
+  left:1.55rem; top:2.4rem; bottom:2.4rem;
+  width:2px;
+  background:repeating-linear-gradient(to bottom,
+    var(--thread) 0 14px, rgba(122,50,38,0) 14px 26px);
+  opacity:.55;
+}
+@media (max-width:640px){ .volume::before{display:none} .volume{background-image:
+    radial-gradient(34% 22% at 82% 14%, rgba(120,92,50,.09), transparent 70%),
+    radial-gradient(40% 26% at 18% 62%, rgba(120,92,50,.075), transparent 70%),
+    radial-gradient(30% 20% at 70% 92%, rgba(90,68,36,.08), transparent 70%);} }
+@media (min-width:641px){ .inner{padding-left:3.4rem} }
+
+h1{
+  font-family:Caveat,"Segoe Script",cursive;
+  font-weight:600;
+  font-size:clamp(2.1rem,6.5vw,2.9rem);
+  line-height:1.05;
+  margin:0 0 .7rem;
+  color:var(--ink);
+  text-wrap:balance;
+}
+.colophon{
+  font-size:.85rem;
+  font-style:italic;
+  font-weight:300;
+  color:var(--ink-3);
+  max-width:var(--measure);
+  margin:0 0 2.6rem;
+  padding-bottom:1.4rem;
+  border-bottom:1px solid var(--rule);
+}
+
+.entry{max-width:var(--measure);margin:0 0 2.4rem;padding-bottom:2.4rem;position:relative}
+.entry::after{
+  content:"";
+  position:absolute; left:0; bottom:0;
+  width:3.4rem; height:1px;
+  background:var(--rule);
+}
+.entry:last-of-type{border:0}
+.when{
+  font-family:Caveat,"Segoe Script",cursive;
+  font-size:1.5rem;
+  line-height:1.2;
+  color:var(--ink-2);
+  margin:0 0 .75rem;
+}
+.entry p{margin:0 0 1rem}
+.entry p:last-child{margin-bottom:0}
+
+/* the two undated entries — the hand goes */
+.late .when{color:var(--ink-3)}
+.shaky{border:0}
+.shaky::after{display:none}
+.shaky .when{
+  color:var(--rust);
+  font-size:1.62rem;
+}
+.shaky p{
+  font-family:Caveat,"Segoe Script",cursive;
+  font-size:1.44rem;
+  line-height:1.5;
+  color:var(--rust);
+  letter-spacing:.005em;
+}
+.breaks{
+  font-family:Spectral,Georgia,serif !important;
+  font-style:italic;
+  font-size:.85rem !important;
+  font-weight:300;
+  color:var(--ink-3) !important;
+  line-height:1.6 !important;
+  margin-top:1.6rem !important;
+}
+@media print{
+  body{background:#fff}
+  .volume{box-shadow:none;background:#fff}
+  .entry{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="desk">
+<article class="volume">
+<div class="inner">
+
+<h1>Pamiętnik</h1>
+<p class="colophon">Ta sama ręka co w zapiskach z badań, inny atrament — tańszy. Bez numeracji. Tom ostatni; wcześniejsze zaginęły. Obejmuje trzy lata: od roku 62 do 64.</p>
+
+<section class="entry">
+  <p class="when">Wiosna, rok sześćdziesiąty drugi</p>
+  <p>T. przyszedł sam. Podwinął rękaw, zanim zdążyłem zapytać.</p>
+  <p>Powiedział, że skoro i tak już po nim, to niech chociaż będzie z niego pożytek. Kazałem mu przestać tak o sobie mówić. Nie przestał.</p>
+</section>
+
+<section class="entry">
+  <p class="when">Jesień, rok sześćdziesiąty drugi</p>
+  <p>Znowu nie wyszło. Leżał potem dwie godziny i patrzył w sufit, a kiedy wstał, zapytał tylko, kiedy próbujemy następnym razem.</p>
+  <p>Nie zasługuję na tego człowieka, ale nigdy mu tego nie powiem.</p>
+</section>
+
+<section class="entry">
+  <p class="when">Zima, rok sześćdziesiąty drugi</p>
+  <p>Głód. Nie piszę o pracy, bo pracy nie ma, czekam aż T. dojdzie do siebie po ostatnich próbach.</p>
+  <p>Kuchnie prowadzi Królowa i robi to lepiej, niż ktokolwiek w tej warowni robi cokolwiek. Widziałem ją dziś nad papierami — liczyła trzy razy to samo, jakby z powietrza mogła wyczarować więcej.</p>
+</section>
+
+<section class="entry">
+  <p class="when">Wiosna, rok sześćdziesiąty trzeci</p>
+  <p>Pochował je we wtorek. Obie.</p>
+  <p>W czwartek przyszedł do mnie ze strażnikami i naciskał, żebym się skupił, i w końcu zaczął robić to, za co mi płaci. Nie prosił. Nie nalegał. Żądał.</p>
+  <p>Rozumiem. Jest w żałobie.</p>
+  <p>Nie zapytał o T. ani razu.</p>
+</section>
+
+<section class="entry">
+  <p class="when">Lato, rok sześćdziesiąty trzeci</p>
+  <p>Przyszedł, jego ludzie przynieśli kilka skrzyń odczynników. Nawet nie prosiłem.</p>
+  <p>Powiedział tylko, że mam pracować. On zadba o to, żebym miał wszystko, co mi jest potrzebne.</p>
+  <p>Na T. patrzył jak na przedmiot. Nawet nie zapytał go, jak się czuje.</p>
+  <p>Pytał o klątwę. Jak działa. Czy można ją przenieść na kogoś innego. On chyba nie ograniczy się do odczynników.</p>
+  <p>Z T. jest coraz gorzej. Chyba nie zostało nam już zbyt wiele czasu.</p>
+</section>
+
+<section class="entry">
+  <p class="when">Jesień, rok sześćdziesiąty trzeci</p>
+  <p>Znowu przyszedł. W oczach miał dziwne opętanie.</p>
+  <p>W ręku przyniósł Lancę. Nie wiem skąd ją wziął, raz mu o niej wspomniałem — ale jedyne co o niej znalazłem, to że jest świętością dla Drakonidów.</p>
+  <p>Na odchodne rozkazał. Rozkazał, żebym użył „zasobów" z lochów.</p>
+  <p>Chyba ma rację. T. od tygodnia nie wrócił do siebie. Wczoraj prawie mnie ugryzł.</p>
+  <p>Boję się, że nie uda mi się… Będę próbował.</p>
+</section>
+
+<section class="entry">
+  <p class="when">Zima, rok sześćdziesiąty trzeci</p>
+  <p>On wie. Wie, że gdyby nie On i jego pomoc, nigdy nie byłbym w stanie zajść tak daleko. Przychodzi coraz częściej. Już nie prosi, nie rozmawia. Oczekuje wyników. Natychmiast.</p>
+  <p>Jeszcze jedna próba. Tym razem uda mi się. T. będzie zdrów.</p>
+  <p>Wiem to.</p>
+</section>
+
+<section class="entry">
+  <p class="when">Wiosna, rok sześćdziesiąty czwarty</p>
+  <p>Wywar był dobry, czysty. Zaklęcie było jak trzeba.</p>
+  <p>T. przepadł. Już nie ma nadziei.</p>
+  <p>On przyszedł. Powiedział że mu przykro. Nie wierzę mu. Nalegał, aby w końcu zakończyć to, nad czym dla niego pracowałem. Nie ma już czasu.</p>
+  <p>On ma rację. Później będzie czas na żałobę.</p>
+</section>
+
+<section class="entry late">
+  <p class="when">[bez daty]</p>
+  <p>Kucharz powiedział mi, kto schodził tamtej nocy do laboratorium.</p>
+  <p>Mam już przygotowane wszystko, co potrzebne do zrobienia Przynęty. Wieczorem odprawię rytuał.</p>
+  <p>Mnie też dopadła Klątwa. Powstrzymuję to. Chyba się uda zdążyć, zanim mnie weźmie całego.</p>
+</section>
+
+<section class="entry shaky">
+  <p class="when">[bez daty — pismo duże i chwiejne]</p>
+  <p>Przynęta zadziałała. Bestie wlazły do jaskini jako pierwsze.</p>
+  <p>On mnie zamknął. Osobiście przykuł w celi, w te same kajdany w których był T. Ironio.</p>
+  <p>Niedoczekanie. To moje laboratorium. Wydostałem się, jak tylko sobie poszedł. Mam w kolekcji składnik, który idealnie skomponuje się z esencją. Dogadałem się z kucharzem, poda mu podczas kolacji.</p>
+  <p>Dowie się, na co skazał T. Na własnej skórze. Na co skazał naszą trójkę.</p>
+  <p>Ktokolwiek przeczyta te notatki, wystrzegajcie się Króla P…</p>
+  <p class="breaks">Pismo urywa się w połowie słowa.</p>
+</section>
+
+</div>
+</article>
+</div>
+</body>
+</html>
